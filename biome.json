@@ -1,0 +1,25 @@
+{
+	"$schema": "https://biomejs.dev/schemas/1.6.4/schema.json",
+	"files": {
+		"include": ["src/**/*.ts"],
+		"ignore": ["node_modules"]
+	},
+	"linter": {
+		"include": ["src/**/*.ts"],
+		"ignore": ["node_modules"],
+		"rules": {
+			"suspicious": {
+				"useValidTypeof": "off",
+				"noExplicitAny": "off"
+			}
+		}
+	},
+	"formatter": {
+		"include": ["src/**/*.ts"],
+		"ignore": ["node_modules"]
+	},
+	"organizeImports": {
+		"include": ["src/**/*.ts"],
+		"ignore": ["node_modules"]
+	}
+}
