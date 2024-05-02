@@ -34,7 +34,7 @@ export const free = (buffer: Buffer) => {
 };
 
 export const check = (buffer: Buffer, size: number) => {
-	if (buffer.buffer.byteLength + size > DEFAULT_SIZE) {
+	if (buffer.offset + size > DEFAULT_SIZE) {
 		buffer.buffer.resize(buffer.buffer.byteLength * 2);
 	}
 };
