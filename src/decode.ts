@@ -5,6 +5,9 @@ type Position = {
 };
 
 const TYPES = {
+	boolean: (position: Position, _: Protocol.Boolean, view: DataView) => {
+		return view.getUint8(position.offset) === 1;
+	},
 	int: (position: Position, type: Protocol.Int, view: DataView) => {
 		const size = type.size ?? 8;
 		const bytes = size / 8;
@@ -102,6 +105,6 @@ const run = (position: Position, type: any, view: DataView) => {
 	return result;
 };
 
-export const decode = (type: Protocol.Any, buffer: ArrayBuffer) => {
+export const decode = (type: Protocol.Any | string, buffer: ArrayBuffer) => {
 	return run({ offset: 0 }, type, new DataView(buffer));
 };

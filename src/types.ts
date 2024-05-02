@@ -24,6 +24,10 @@ export namespace Protocol {
 		size?: 8 | 16 | 32;
 	}>;
 
+	export type Boolean = Type<{
+		type: "boolean";
+	}>;
+
 	export type Int = Type<{
 		type: "int";
 		signed?: boolean;
@@ -51,7 +55,13 @@ export namespace Protocol {
 		items: (Any | string)[];
 	}>;
 
-	export type Any = Object | Array | Int | Float | String | Enum | Tuple;
-
-	export type TypeNames = Any["type"];
+	export type Any =
+		| Object
+		| Array
+		| Boolean
+		| Int
+		| Float
+		| String
+		| Enum
+		| Tuple;
 }

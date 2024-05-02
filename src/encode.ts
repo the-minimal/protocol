@@ -3,6 +3,9 @@ import type { Buffer } from "@utils";
 import { alloc, check, free } from "@utils";
 
 const TYPES = {
+	boolean: (buffer: Buffer, _: Protocol.Boolean, value: boolean) => {
+		buffer.view.setUint8(buffer.offset++, +value);
+	},
 	int: (buffer: Buffer, type: Protocol.Int, value: number) => {
 		const size = type.size ?? 8;
 		const bytes = size / 8;
@@ -92,7 +95,7 @@ const run = (buffer: Buffer, type: any, value: unknown) => {
 	(TYPES as any)[type.type](buffer, type, value);
 };
 
-export const encode = (type: Protocol.Any, value: unknown) => {
+export const encode = (type: Protocol.Any | string, value: unknown) => {
 	const buffer = alloc();
 
 	run(buffer, type, value);
