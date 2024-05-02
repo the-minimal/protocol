@@ -4,7 +4,7 @@ export namespace Protocol {
 	};
 
 	type Assertable = {
-		parse?: (v: unknown) => unknown;
+		assert?: (v: unknown) => asserts v is unknown;
 	};
 
 	type Keyable = {
@@ -24,20 +24,17 @@ export namespace Protocol {
 		size?: 8 | 16 | 32;
 	}>;
 
+	export type Float = Type<{
+		type: "float";
+		size?: 32 | 64;
+	}>;
+
 	export type Ascii = Type<{
 		type: "ascii";
 		size?: 8 | 16;
 	}>;
 
-	export type Any = Object | Int | Ascii;
+	export type Any = Object | Int | Float | Ascii;
 
 	export type TypeNames = Any["type"];
-
-	export type Decoders = {
-		[$TypeName in TypeNames]: (schema: any, view: DataView) => any;
-	};
-
-	export type Encoders = {
-		[$TypeName in TypeNames]: (schema: any, value: any) => void;
-	};
 }

@@ -1,3 +1,5 @@
+import { Protocol } from "@types";
+
 export type Buffer = {
 	offset: number;
 	buffer: ArrayBuffer;

@@ -5,11 +5,32 @@ type Position = {
 };
 
 const TYPES = {
-	int: (position: Position, _: Protocol.Int, view: DataView) => {
-		return view.getUint8(position.offset++);
+	int: (position: Position, type: Protocol.Int, view: DataView) => {
+		const size = type.size ?? 8;
+		const bytes = size / 8;
+		const result = view[`get${type.unsigned ? "Uint" : "Int"}${size}`](
+			position.offset,
+		);
+
+		position.offset += bytes;
+
+		return result;
 	},
-	ascii: (position: Position, _: Protocol.Int, view: DataView) => {
-		const length = view.getUint8(position.offset++);
+	float: (position: Position, type: Protocol.Float, view: DataView) => {
+		const size = type.size ?? 32;
+		const bytes = size / 8;
+		const result = view[`getFloat${size}`](position.offset);
+
+		position.offset += bytes;
+
+		return result;
+	},
+	ascii: (position: Position, type: Protocol.Int, view: DataView) => {
+		const size = type.size ?? 8;
+		const bytes = size / 8;
+		const length = view[`getUint${size}`](position.offset);
+
+		position.offset += bytes;
 
 		let result = "";
 
@@ -31,14 +52,19 @@ const TYPES = {
 };
 
 const run = (position: Position, type: any, view: DataView) => {
-	if (type.nullable && view.getUint8(position.offset++) === 1) {
-		return null;
+	if (type.nullable) {
+		const isNull = view.getUint8(position.offset++) === 1;
+
+		if (isNull) {
+			position.offset++;
+			return null;
+		}
 	}
 
 	const result = (TYPES as any)[type.type](position, type, view);
 
-	if (type.parse) {
-		type.parse(result);
+	if (type.assert) {
+		type.assert(result);
 	}
 
 	return result;

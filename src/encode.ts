@@ -3,13 +3,32 @@ import type { Buffer } from "@utils";
 import { alloc, check, free } from "@utils";
 
 const TYPES = {
-	int: (buffer: Buffer, _: Protocol.Int, value: number) => {
-		check(buffer, 1);
-		buffer.view.setUint8(buffer.offset++, value);
+	int: (buffer: Buffer, type: Protocol.Int, value: number) => {
+		const size = type.size ?? 8;
+		const bytes = size / 8;
+
+		check(buffer, bytes);
+		buffer.view[`set${type.unsigned ? "Uint" : "Int"}${size}`](
+			buffer.offset,
+			value,
+		);
+		buffer.offset += bytes;
 	},
-	ascii: (buffer: Buffer, _: Protocol.Ascii, value: string) => {
+	float: (buffer: Buffer, type: Protocol.Float, value: number) => {
+		const size = type.size ?? 32;
+		const bytes = size / 8;
+
+		check(buffer, bytes);
+		buffer.view[`setFloat${size}`](buffer.offset, value);
+		buffer.offset += bytes;
+	},
+	ascii: (buffer: Buffer, type: Protocol.Ascii, value: string) => {
+		const size = type.size ?? 8;
+		const bytes = size / 8;
+
 		check(buffer, 1 + value.length);
-		buffer.view.setUint8(buffer.offset++, value.length);
+		buffer.view[`setUint${size}`](buffer.offset, value.length);
+		buffer.offset += bytes;
 
 		for (let i = 0; i < value.length; ++i) {
 			buffer.view.setUint8(buffer.offset++, value.charCodeAt(i));
@@ -27,13 +46,22 @@ const TYPES = {
 };
 
 const run = (buffer: Buffer, type: any, value: unknown) => {
+	const isNull = value === null;
+
 	if (type.nullable) {
 		check(buffer, 1);
-		buffer.view.setUint8(buffer.offset++, +(value === null));
+		buffer.view.setUint8(buffer.offset++, +isNull);
+
+		if (isNull) {
+			check(buffer, 1);
+			buffer.view.setUint8(buffer.offset++, 0);
+
+			return;
+		}
 	}
 
-	if (type.parse && value !== null) {
-		type.parse(value);
+	if (type.assert) {
+		type.assert(value);
 	}
 
 	(TYPES as any)[type.type](buffer, type, value);
