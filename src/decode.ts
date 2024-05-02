@@ -49,6 +49,21 @@ const TYPES = {
 
 		return result;
 	},
+	array: (position: Position, type: Protocol.Array, view: DataView) => {
+		const size = type.size ?? 8;
+		const bytes = size / 8;
+		const length = view[`getUint${size}`](position.offset);
+
+		position.offset += bytes;
+
+		const result: unknown[] = [];
+
+		for (let i = 0; i < length; ++i) {
+			result[i] = run(position, type.item, view);
+		}
+
+		return result;
+	},
 };
 
 const run = (position: Position, type: any, view: DataView) => {

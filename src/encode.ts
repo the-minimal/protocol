@@ -26,7 +26,7 @@ const TYPES = {
 		const size = type.size ?? 8;
 		const bytes = size / 8;
 
-		check(buffer, 1 + value.length);
+		check(buffer, bytes + value.length);
 		buffer.view[`setUint${size}`](buffer.offset, value.length);
 		buffer.offset += bytes;
 
@@ -41,6 +41,18 @@ const TYPES = {
 	) => {
 		for (let i = 0; i < type.properties.length; ++i) {
 			run(buffer, type.properties[i], value[type.properties[i].key]);
+		}
+	},
+	array: (buffer: Buffer, type: Protocol.Array, value: string) => {
+		const size = type.size ?? 8;
+		const bytes = size / 8;
+
+		check(buffer, bytes);
+		buffer.view[`setUint${size}`](buffer.offset, value.length);
+		buffer.offset += bytes;
+
+		for (let i = 0; i < value.length; ++i) {
+			run(buffer, type.item, value[i]);
 		}
 	},
 };

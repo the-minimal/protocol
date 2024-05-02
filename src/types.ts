@@ -18,6 +18,12 @@ export namespace Protocol {
 		properties: (Any & Required<Keyable>)[];
 	}>;
 
+	export type Array = Type<{
+		type: "array";
+		item: Any;
+		size?: 8 | 16 | 32;
+	}>;
+
 	export type Int = Type<{
 		type: "int";
 		unsigned?: boolean;
@@ -34,7 +40,7 @@ export namespace Protocol {
 		size?: 8 | 16;
 	}>;
 
-	export type Any = Object | Int | Float | Ascii;
+	export type Any = Object | Array | Int | Float | Ascii;
 
 	export type TypeNames = Any["type"];
 }
