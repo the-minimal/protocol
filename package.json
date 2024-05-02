@@ -6,13 +6,16 @@
     "start": "bun index.ts",
     "check": "bunx @biomejs/biome check --apply ./",
     "build": "tsup",
-    "test": "vitest"
+    "test": "vitest run --coverage"
   },
   "devDependencies": {
     "@biomejs/biome": "1.7.0",
     "@fast-check/vitest": "0.1.1",
     "@types/bun": "latest",
+    "@vitest/coverage-v8": "1.5.3",
+    "release-it": "17.2.1",
     "tsup": "8.0.2",
+    "vite-tsconfig-paths": "4.3.2",
     "vitest": "1.5.3"
   },
   "peerDependencies": {
