@@ -58,6 +58,11 @@ const TYPES = {
 	enum: (buffer: Buffer, type: Protocol.Enum, value: string) => {
 		buffer.view.setUint8(buffer.offset++, type.options.indexOf(value));
 	},
+	tuple: (buffer: Buffer, type: Protocol.Tuple, value: unknown[]) => {
+		for (let i = 0; i < type.items.length; ++i) {
+			run(buffer, type.items[i], value[i]);
+		}
+	},
 };
 
 const run = (buffer: Buffer, type: any, value: unknown) => {

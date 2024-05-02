@@ -67,6 +67,15 @@ const TYPES = {
 	enum: (position: Position, type: Protocol.Enum, view: DataView) => {
 		return type.options[view.getUint8(position.offset++)];
 	},
+	tuple: (position: Position, type: Protocol.Tuple, view: DataView) => {
+		const result: unknown[] = [];
+
+		for (let i = 0; i < type.items.length; ++i) {
+			result[i] = run(position, type.items[i], view);
+		}
+
+		return result;
+	},
 };
 
 const run = (position: Position, type: any, view: DataView) => {

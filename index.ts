@@ -34,6 +34,11 @@ const test = {
 			type: "enum",
 			options: ["ADMIN", "USER"],
 		},
+		{
+			key: "location",
+			type: "tuple",
+			items: [{ type: "float" }, { type: "float" }],
+		},
 	],
 } satisfies Protocol.Any;
 
@@ -43,6 +48,7 @@ const value = {
 	grade: 1.23,
 	tags: ["hello", "world"],
 	role: "ADMIN",
+	location: [49.7384, 13.3736],
 };
 
 const a = encode(test, value);

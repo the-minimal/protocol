@@ -45,7 +45,12 @@ export namespace Protocol {
 		options: string[];
 	}>;
 
-	export type Any = Object | Array | Int | Float | Ascii | Enum;
+	export type Tuple = Type<{
+		type: "tuple";
+		items: unknown[];
+	}>;
+
+	export type Any = Object | Array | Int | Float | Ascii | Enum | Tuple;
 
 	export type TypeNames = Any["type"];
 }
