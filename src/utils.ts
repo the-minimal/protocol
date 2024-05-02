@@ -1,5 +1,3 @@
-import { Protocol } from "@types";
-
 export type Buffer = {
 	offset: number;
 	buffer: ArrayBuffer;
@@ -29,6 +27,8 @@ export const setup = (
 	SETTINGS.DEFAULT_SIZE = settings.defaultSize ?? DEFAULT_SIZE;
 	SETTINGS.MAX_SIZE = settings.maxSize ?? MAX_SIZE;
 };
+
+// TODO: move these function into internal utils
 
 export const alloc = (): Buffer => {
 	if (FREE.length) {

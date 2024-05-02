@@ -22,7 +22,8 @@ const TYPES = {
 		buffer.view[`setFloat${size}`](buffer.offset, value);
 		buffer.offset += bytes;
 	},
-	ascii: (buffer: Buffer, type: Protocol.Ascii, value: string) => {
+	// TODO: add support for utf8/16
+	string: (buffer: Buffer, type: Protocol.String, value: string) => {
 		const size = type.size ?? 8;
 		const bytes = size / 8;
 

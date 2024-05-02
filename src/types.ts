@@ -35,8 +35,9 @@ export namespace Protocol {
 		size?: 32 | 64;
 	}>;
 
-	export type Ascii = Type<{
-		type: "ascii";
+	export type String = Type<{
+		type: "string";
+		kind?: "ascii" | "utf8" | "utf16";
 		size?: 8 | 16;
 	}>;
 
@@ -50,7 +51,7 @@ export namespace Protocol {
 		items: unknown[];
 	}>;
 
-	export type Any = Object | Array | Int | Float | Ascii | Enum | Tuple;
+	export type Any = Object | Array | Int | Float | String | Enum | Tuple;
 
 	export type TypeNames = Any["type"];
 }

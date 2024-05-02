@@ -25,7 +25,8 @@ const TYPES = {
 
 		return result;
 	},
-	ascii: (position: Position, type: Protocol.Int, view: DataView) => {
+	// TODO: add support for utf8/16
+	string: (position: Position, type: Protocol.Int, view: DataView) => {
 		const size = type.size ?? 8;
 		const bytes = size / 8;
 		const length = view[`getUint${size}`](position.offset);

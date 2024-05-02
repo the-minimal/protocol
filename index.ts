@@ -1,11 +1,10 @@
 import type { Protocol } from "@types";
-import { decode } from "./src/decode";
-import { encode } from "./src/encode";
+import { decode, encode } from "./src";
 
 const test = {
 	type: "object",
 	properties: [
-		{ key: "email", type: "ascii" },
+		{ key: "email", type: "string" },
 		{
 			key: "age",
 			type: "int",
@@ -26,7 +25,7 @@ const test = {
 			key: "tags",
 			type: "array",
 			item: {
-				type: "ascii",
+				type: "string",
 			},
 		},
 		{
