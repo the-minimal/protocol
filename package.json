@@ -5,12 +5,15 @@
   "scripts": {
     "start": "bun index.ts",
     "check": "bunx @biomejs/biome check --apply ./",
-    "build": "tsup"
+    "build": "tsup",
+    "test": "vitest"
   },
   "devDependencies": {
     "@biomejs/biome": "1.7.0",
+    "@fast-check/vitest": "0.1.1",
     "@types/bun": "latest",
-    "tsup": "8.0.2"
+    "tsup": "8.0.2",
+    "vitest": "1.5.3"
   },
   "peerDependencies": {
     "typescript": "5.4.5"
