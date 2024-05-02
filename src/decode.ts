@@ -8,7 +8,7 @@ const TYPES = {
 	int: (position: Position, type: Protocol.Int, view: DataView) => {
 		const size = type.size ?? 8;
 		const bytes = size / 8;
-		const result = view[`get${type.unsigned ? "Uint" : "Int"}${size}`](
+		const result = view[`get${type.signed ? "Int" : "Uint"}${size}`](
 			position.offset,
 		);
 

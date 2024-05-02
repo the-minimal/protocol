@@ -26,7 +26,7 @@ export namespace Protocol {
 
 	export type Int = Type<{
 		type: "int";
-		unsigned?: boolean;
+		signed?: boolean;
 		size?: 8 | 16 | 32;
 	}>;
 

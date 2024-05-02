@@ -8,7 +8,7 @@ const TYPES = {
 		const bytes = size / 8;
 
 		check(buffer, bytes);
-		buffer.view[`set${type.unsigned ? "Uint" : "Int"}${size}`](
+		buffer.view[`set${type.signed ? "Int" : "Uint"}${size}`](
 			buffer.offset,
 			value,
 		);

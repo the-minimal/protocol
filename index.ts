@@ -9,17 +9,11 @@ const test = {
 			key: "age",
 			type: "int",
 			nullable: true,
-			assert: (v) => {
-				if (<any>v < 0 || <any>v > 150) {
-					throw Error("Age should be between 0 and 150");
-				}
-
-				return v;
-			},
 		},
 		{
 			key: "grade",
 			type: "float",
+			nullable: true,
 		},
 		{
 			key: "tags",
