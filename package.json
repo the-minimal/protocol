@@ -4,11 +4,13 @@
   "type": "module",
   "scripts": {
     "start": "bun index.ts",
-    "check": "bunx @biomejs/biome check --apply ./"
+    "check": "bunx @biomejs/biome check --apply ./",
+    "build": "tsup"
   },
   "devDependencies": {
     "@biomejs/biome": "1.7.0",
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "tsup": "8.0.2"
   },
   "peerDependencies": {
     "typescript": "5.4.5"

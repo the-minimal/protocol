@@ -1,12 +1,7 @@
 import type { Protocol } from "@types";
 import { setup } from "@utils";
-import { decode } from "./src/decoder";
-import { encode } from "./src/encoder";
-
-setup({
-	defaultSize: 10,
-	maxSize: 20,
-});
+import { decode } from "./src/decode";
+import { encode } from "./src/encode";
 
 const register = {
 	type: "object",
