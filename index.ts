@@ -29,6 +29,11 @@ const test = {
 				type: "ascii",
 			},
 		},
+		{
+			key: "role",
+			type: "enum",
+			options: ["ADMIN", "USER"],
+		},
 	],
 } satisfies Protocol.Any;
 
@@ -37,6 +42,7 @@ const value = {
 	age: null,
 	grade: 1.23,
 	tags: ["hello", "world"],
+	role: "ADMIN",
 };
 
 const a = encode(test, value);

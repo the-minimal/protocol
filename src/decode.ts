@@ -64,6 +64,9 @@ const TYPES = {
 
 		return result;
 	},
+	enum: (position: Position, type: Protocol.Enum, view: DataView) => {
+		return type.options[view.getUint8(position.offset++)];
+	},
 };
 
 const run = (position: Position, type: any, view: DataView) => {

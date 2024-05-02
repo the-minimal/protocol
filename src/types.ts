@@ -40,7 +40,12 @@ export namespace Protocol {
 		size?: 8 | 16;
 	}>;
 
-	export type Any = Object | Array | Int | Float | Ascii;
+	export type Enum = Type<{
+		type: "enum";
+		options: string[];
+	}>;
+
+	export type Any = Object | Array | Int | Float | Ascii | Enum;
 
 	export type TypeNames = Any["type"];
 }

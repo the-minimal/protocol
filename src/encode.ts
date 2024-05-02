@@ -43,7 +43,7 @@ const TYPES = {
 			run(buffer, type.properties[i], value[type.properties[i].key]);
 		}
 	},
-	array: (buffer: Buffer, type: Protocol.Array, value: string) => {
+	array: (buffer: Buffer, type: Protocol.Array, value: unknown[]) => {
 		const size = type.size ?? 8;
 		const bytes = size / 8;
 
@@ -54,6 +54,9 @@ const TYPES = {
 		for (let i = 0; i < value.length; ++i) {
 			run(buffer, type.item, value[i]);
 		}
+	},
+	enum: (buffer: Buffer, type: Protocol.Enum, value: string) => {
+		buffer.view.setUint8(buffer.offset++, type.options.indexOf(value));
 	},
 };
 
