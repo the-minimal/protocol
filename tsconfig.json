@@ -13,6 +13,9 @@
     "paths": {
       "@types": [
         "types.ts"
+      ],
+      "@utils": [
+        "utils.ts"
       ]
     }
   },

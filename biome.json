@@ -1,11 +1,11 @@
 {
 	"$schema": "https://biomejs.dev/schemas/1.6.4/schema.json",
 	"files": {
-		"include": ["src/**/*.ts"],
+		"include": ["src/**/*.ts", "index.ts"],
 		"ignore": ["node_modules"]
 	},
 	"linter": {
-		"include": ["src/**/*.ts"],
+		"include": ["src/**/*.ts", "index.ts"],
 		"ignore": ["node_modules"],
 		"rules": {
 			"suspicious": {
@@ -15,11 +15,11 @@
 		}
 	},
 	"formatter": {
-		"include": ["src/**/*.ts"],
+		"include": ["src/**/*.ts", "index.ts"],
 		"ignore": ["node_modules"]
 	},
 	"organizeImports": {
-		"include": ["src/**/*.ts"],
+		"include": ["src/**/*.ts", "index.ts"],
 		"ignore": ["node_modules"]
 	}
 }

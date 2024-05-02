@@ -1,47 +1,52 @@
 import type { Protocol } from "@types";
+import type { Buffer } from "@utils";
+import { alloc, check, free } from "@utils";
 
-export class DataEncoder implements Protocol.Encoders {
-	private buffer: ArrayBuffer;
-	private view: DataView;
-	private offset: number;
-
-	constructor() {
-		this.buffer = new ArrayBuffer(1024);
-		this.view = new DataView(this.buffer);
-		this.offset = 0;
-	}
-
-	run(type: any, value: unknown) {
-		if (type.nullable) {
-			this.view.setUint8(this.offset++, +(value === null));
-		}
-
-		(this as any)[type.type](
-			type,
-			type.parse && value !== null ? type.parse(value) : value,
-		);
-	}
-
-	int(_: Protocol.Int, value: number) {
-		this.view.setUint8(this.offset++, value);
-	}
-
-	ascii(_: Protocol.Ascii, value: string) {
-		this.view.setUint8(this.offset++, value.length);
+const TYPES = {
+	int: (buffer: Buffer, _: Protocol.Int, value: number) => {
+		check(buffer, 1);
+		buffer.view.setUint8(buffer.offset++, value);
+	},
+	ascii: (buffer: Buffer, _: Protocol.Ascii, value: string) => {
+		check(buffer, 1 + value.length);
+		buffer.view.setUint8(buffer.offset++, value.length);
 
 		for (let i = 0; i < value.length; ++i) {
-			this.view.setUint8(this.offset++, value.charCodeAt(i));
+			buffer.view.setUint8(buffer.offset++, value.charCodeAt(i));
 		}
-	}
-
-	object(type: Protocol.Object, value: Record<string, unknown>) {
+	},
+	object: (
+		buffer: Buffer,
+		type: Protocol.Object,
+		value: Record<string, unknown>,
+	) => {
 		for (let i = 0; i < type.properties.length; ++i) {
-			this.run(type.properties[i], value[type.properties[i].key]);
+			run(buffer, type.properties[i], value[type.properties[i].key]);
 		}
+	},
+};
+
+const run = (buffer: Buffer, type: any, value: unknown) => {
+	if (type.nullable) {
+		check(buffer, 1);
+		buffer.view.setUint8(buffer.offset++, +(value === null));
 	}
 
-	encode(type: Protocol.Any, value: unknown) {
-		this.run(type, value);
-		return this.buffer.slice(0, this.offset);
+	if (type.parse && value !== null) {
+		type.parse(value);
 	}
-}
+
+	(TYPES as any)[type.type](buffer, type, value);
+};
+
+export const encode = (type: Protocol.Any, value: unknown) => {
+	const buffer = alloc();
+
+	run(buffer, type, value);
+
+	const result = buffer.buffer.slice(0, buffer.offset);
+
+	free(buffer);
+
+	return result;
+};
