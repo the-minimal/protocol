@@ -1,6 +1,12 @@
 import type { Protocol } from "@types";
+import { setup } from "@utils";
 import { decode } from "./src/decoder";
 import { encode } from "./src/encoder";
+
+setup({
+	defaultSize: 10,
+	maxSize: 20,
+});
 
 const register = {
 	type: "object",
@@ -31,6 +37,8 @@ const value = {
 };
 
 const a = encode(register, value);
+
+encode(register, value);
 
 console.log(a);
 
