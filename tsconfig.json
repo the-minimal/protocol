@@ -8,16 +8,7 @@
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
     "isolatedModules": true,
-    "strict": true,
-    "baseUrl": "./src",
-    "paths": {
-      "@types": [
-        "types.ts"
-      ],
-      "@utils": [
-        "utils.ts"
-      ]
-    }
+    "strict": true
   },
   "include": ["src", "tests","index.ts"],
   "exclude": ["node_modules"]

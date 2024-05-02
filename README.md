@@ -2,6 +2,14 @@
 
 ## Types
 
+### Boolean
+
+```ts
+{
+   type: "boolean";
+}
+```
+
 ### Int
 
 ```ts

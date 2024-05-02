@@ -1,4 +1,4 @@
-import type { Protocol } from "@types";
+import type { Protocol } from "./types";
 
 type Position = {
 	offset: number;

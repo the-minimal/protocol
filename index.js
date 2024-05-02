@@ -1,5 +1,4 @@
-import type { Protocol } from "@types";
-import { decode, encode } from "./src";
+import { decode, encode } from "./dist/index.js";
 
 const test = {
 	type: "object",
@@ -31,7 +30,7 @@ const test = {
 			items: ["float", "float"],
 		},
 	],
-} satisfies Protocol.Any;
+};
 
 const value = {
 	email: "yamiteru@icloud.com",
@@ -42,12 +41,15 @@ const value = {
 	location: [49.7384, 13.3736],
 };
 
-const a = encode(test, value);
+let _;
 
-// encode(register, value);
+const blackbox = (v) => {
+	const a = v;
+	const b = a;
 
-console.log(a);
+	_ = b;
+};
 
-const b = decode(test, a);
-
-console.log(b);
+for(let i = 0; i < 1_000_000; i++) {
+	blackbox(decode(test, encode(test, value)));
+}

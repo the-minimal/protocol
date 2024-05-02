@@ -3,6 +3,6 @@
   "format": ["esm", "cjs"],
   "outDir": "./dist",
   "clean": true,
-  "dts": true,
-  "minify": true
+  "dts": false,
+  "minify": false
 }

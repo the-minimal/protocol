@@ -1,6 +1,5 @@
-import type { Protocol } from "@types";
-import type { Buffer } from "@utils";
-import { alloc, check, free } from "@utils";
+import type { Protocol } from "./types";
+import { type Buffer, alloc, check, free } from "./utils";
 
 const TYPES = {
 	boolean: (buffer: Buffer, _: Protocol.Boolean, value: boolean) => {
