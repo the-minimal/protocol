@@ -24,9 +24,7 @@ const test = {
 		{
 			key: "tags",
 			type: "array",
-			item: {
-				type: "string",
-			},
+			item: "string",
 		},
 		{
 			key: "role",
@@ -36,7 +34,7 @@ const test = {
 		{
 			key: "location",
 			type: "tuple",
-			items: [{ type: "float" }, { type: "float" }],
+			items: ["float", "float"],
 		},
 	],
 } satisfies Protocol.Any;

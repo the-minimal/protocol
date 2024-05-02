@@ -67,6 +67,10 @@ const TYPES = {
 };
 
 const run = (buffer: Buffer, type: any, value: unknown) => {
+	if (typeof type === "string") {
+		type = { type };
+	}
+
 	const isNull = value === null;
 
 	if (type.nullable) {

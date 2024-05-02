@@ -80,6 +80,10 @@ const TYPES = {
 };
 
 const run = (position: Position, type: any, view: DataView) => {
+	if (typeof type === "string") {
+		type = { type };
+	}
+
 	if (type.nullable) {
 		const isNull = view.getUint8(position.offset++) === 1;
 

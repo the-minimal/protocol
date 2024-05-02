@@ -20,7 +20,7 @@ export namespace Protocol {
 
 	export type Array = Type<{
 		type: "array";
-		item: Any;
+		item: Any | string;
 		size?: 8 | 16 | 32;
 	}>;
 
@@ -48,7 +48,7 @@ export namespace Protocol {
 
 	export type Tuple = Type<{
 		type: "tuple";
-		items: unknown[];
+		items: (Any | string)[];
 	}>;
 
 	export type Any = Object | Array | Int | Float | String | Enum | Tuple;

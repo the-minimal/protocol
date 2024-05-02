@@ -11,6 +11,9 @@
 			"suspicious": {
 				"useValidTypeof": "off",
 				"noExplicitAny": "off"
+			},
+			"style": {
+				"noParameterAssign": "off"
 			}
 		}
 	},
