@@ -1,4 +1,4 @@
-import type { Position, Type } from "./types";
+import type { Infer, Position, Type } from "./types";
 
 const TYPES = {
 	boolean: (position: Position, _: Type.Boolean, view: DataView) => {
@@ -95,6 +95,9 @@ const run = (position: Position, type: Type.Any, view: DataView) => {
 	return result;
 };
 
-export const decode = (type: Type.Any, buffer: ArrayBuffer) => {
-	return run({ offset: 0 }, type, new DataView(buffer));
+export const decode = <$Type extends Type.Any>(
+	type: $Type,
+	buffer: ArrayBuffer,
+) => {
+	return run({ offset: 0 }, type, new DataView(buffer)) as Infer<$Type>;
 };

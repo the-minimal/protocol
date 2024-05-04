@@ -1,22 +1,19 @@
+type New<$Type extends Type.Any> = $Type & Type.Nullable & Type.Assertable & Type.Keyable;
+
 export namespace Type {
-	type Nullable = {
+	export type Nullable = {
 		nullable?: boolean;
 	};
 
-	type Assertable = {
+	export type Assertable = {
 		assert?: (v: unknown) => asserts v is unknown;
 	};
 
-	type Keyable = {
+	export type Keyable = {
 		key?: string;
 	};
 
-	type New<$Type extends Any> = $Type & Nullable & Assertable & Keyable;
-
-	export type Any = { type: string } & Nullable &
-		Assertable &
-		Keyable &
-		Record<string, unknown>;
+	export type Any = New<{ type: string }> & Record<string, unknown>;
 
 	export type Object = New<{
 		type: "object";
@@ -60,6 +57,53 @@ export namespace Type {
 		value: Any[];
 	}>;
 }
+
+type Primitive = {
+	int: number;
+	float: number;
+	boolean: boolean;
+	string: string;
+};
+
+type PrimitiveKey = keyof Primitive;
+
+type InferTuple<$Tuple extends unknown[]> = $Tuple extends Type.Any[]
+	? $Tuple extends [infer $Head, ...infer $Tail] 
+		? [Infer<$Head>, ...InferTuple<$Tail>]
+		: []
+	: [];
+
+type Nullable<$Boolean extends boolean, $Type> = $Boolean extends true 
+	? $Type | null
+	: $Type;
+
+type InferName<$Type> = $Type extends Type.Any ? $Type["type"]: never;
+
+type InferNullable<$Type> = $Type extends Required<Type.Nullable >
+	? $Type["nullable"]
+	: false;
+
+type InferObject<$Type extends Type.Object> = {
+	[$Prop in $Type["value"][number] as $Prop["key"]]: Infer<$Prop>;
+};
+
+export type Infer<
+	$Type, 
+	$Name extends string = InferName<$Type>,
+	$Nullable extends boolean = InferNullable<$Type>
+> = $Type extends Type.Any
+	? $Name extends PrimitiveKey
+		? Nullable<$Nullable, Primitive[$Name]> 
+		: $Type extends Type.Object
+			? Nullable<$Nullable, InferObject<$Type>>
+			: $Type extends Type.Array
+				? Nullable<$Nullable, Infer<$Type["value"]>[]>
+				: $Type extends Type.Enum
+					? Nullable<$Nullable, $Type["value"][number]>
+					: $Type extends Type.Tuple
+						? Nullable<$Nullable, InferTuple<$Type["value"]>>
+						: Nullable<$Nullable, unknown>
+	: never;
 
 export type State = {
 	offset: number;

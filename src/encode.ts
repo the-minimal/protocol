@@ -1,4 +1,4 @@
-import type { State, Type } from "./types";
+import type { Infer, State, Type } from "./types";
 import { alloc, free } from "./utils";
 
 const TYPES = {
@@ -77,7 +77,11 @@ const run = (state: State, type: Type.Any, value: unknown) => {
 	(TYPES as any)[type.type](state, type, value);
 };
 
-export const encode = (type: Type.Any, value: unknown, chunks = 1) => {
+export const encode = <$Type extends Type.Any>(
+	type: $Type,
+	value: Infer<$Type>,
+	chunks = 1,
+) => {
 	const state = alloc(chunks);
 
 	run(state, type, value);
