@@ -43,8 +43,8 @@ const TYPES = {
 	object: (position: Position, type: Type.Object, view: DataView) => {
 		const result: Record<string, unknown> = {};
 
-		for (let i = 0; i < type.properties.length; ++i) {
-			result[type.properties[i].key] = run(position, type.properties[i], view);
+		for (let i = 0; i < type.value.length; ++i) {
+			result[type.value[i].key] = run(position, type.value[i], view);
 		}
 
 		return result;
@@ -59,19 +59,19 @@ const TYPES = {
 		const result: unknown[] = [];
 
 		for (let i = 0; i < length; ++i) {
-			result[i] = run(position, type.item, view);
+			result[i] = run(position, type.value, view);
 		}
 
 		return result;
 	},
 	enum: (position: Position, type: Type.Enum, view: DataView) => {
-		return type.options[view.getUint8(position.offset++)];
+		return type.value[view.getUint8(position.offset++)];
 	},
 	tuple: (position: Position, type: Type.Tuple, view: DataView) => {
 		const result: unknown[] = [];
 
-		for (let i = 0; i < type.items.length; ++i) {
-			result[i] = run(position, type.items[i], view);
+		for (let i = 0; i < type.value.length; ++i) {
+			result[i] = run(position, type.value[i], view);
 		}
 
 		return result;

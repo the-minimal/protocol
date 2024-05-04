@@ -1,9 +1,11 @@
 import {fc, test} from "@fast-check/vitest";
-import {describe, expect} from "vitest";
-import {decode, encode, Type} from "../src";
+import {beforeEach, describe, expect} from "vitest";
+import {decode, encode, init, Type} from "../src";
 import {UINT8} from "./shared";
 
 describe("nullable", () => {
+    beforeEach(() => init());
+
     test.prop([fc.oneof(fc.integer(UINT8), fc.constant(null))])("true", (value) => {
         const type = { type: "int", size: 8, nullable: true } satisfies Type.Int;
 

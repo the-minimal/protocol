@@ -1,5 +1,37 @@
 # protocol
 
+## API
+
+### `init`
+
+This function sets up all underlying buffers and counters.
+
+It has to be called before `encode` is called (not needed for `decode`).
+
+```ts
+init({
+    DEFAULT_POOL_SIZE: 4_000,
+    MAX_POOL_SIZE: 16_000,
+    DEFAULT_CHUNK_SIZE: 2_000,
+});
+```
+
+### `encode`
+
+Encodes JS data into `ArrayBuffer` based on `Type`.
+
+### `decode`
+
+Decodes `ArrayBuffer` into JS data based on `Type`.
+
+## Memory
+
+Internally we use a growable `ArrayBuffer` of initial size of 512 KB and maximum size of 5 MB which we segment into 8 KB chunks.
+
+On every `encode` call we check if there is enough free chunks and if there is not then we attempt to grow the buffer.
+
+Choose number of chunks based on your expected size of the data wisely since if the sub-buffer created from chunks is not big enough it will throw an overflow error.
+
 ## Types
 
 ### Boolean
@@ -63,7 +95,7 @@
 ```ts
 {
    type: "object";
-   properties: (Type.Any & Required<Type.Keyable>)[];
+   value: (Type.Any & Required<Type.Keyable>)[];
 }
 ```
 
@@ -77,7 +109,7 @@
 ```ts
 {
    type: "array";
-   item: Type.Any;
+   value: Type.Any;
    size?: 8 | 16;  // default: 8
 }
 ```
@@ -87,7 +119,7 @@
 ```ts
 {
    type: "array";
-   items: Type.Any[];
+   value: Type.Any[];
 }
 ```
 
@@ -96,11 +128,13 @@
 ```ts
 {
    type: "enum";
-   items: unknown[];
+   value: unknown[];
 }
 ```
 
 ## Keyable 
+
+Used in `Object` for property names.
 
 ```ts
 {
@@ -110,6 +144,8 @@
 
 ## Nullable
 
+Any type can be made nullable by adding `nullable` property to it.
+
 ```ts
 {
    nullable?: boolean;
@@ -117,6 +153,12 @@
 ```
 
 ## Assert
+
+Any type can be asserted by adding `assert` property to it.
+
+In `encode` it's run before encoding and in `decode` it's run after decoding.
+
+If type is `nullable` and the value is `null` we do not run `assert`.
 
 ```ts
 {

@@ -1,18 +1,32 @@
-import { SETTINGS } from "./constants";
-import type { State } from "./types";
+import type { Settings, State } from "./types";
 
-const BUFFER = new ArrayBuffer(SETTINGS.DEFAULT_POOL_SIZE, {
-	maxByteLength: SETTINGS.MAX_POOL_SIZE,
-});
+export const SETTINGS = {
+	DEFAULT_POOL_SIZE: 500_000,
+	MAX_POOL_SIZE: 5_000_000,
+	DEFAULT_CHUNK_SIZE: 8_000,
+};
 
-const ALLOCATED_BUFFER = new ArrayBuffer(
-	SETTINGS.DEFAULT_POOL_SIZE / SETTINGS.DEFAULT_CHUNK_SIZE,
-	{ maxByteLength: SETTINGS.MAX_POOL_SIZE / SETTINGS.DEFAULT_CHUNK_SIZE },
-);
+let MAIN_BUFFER: ArrayBuffer;
+let ALLOCATED_BUFFER: ArrayBuffer;
+let ALLOCATED_ARRAY: Uint8Array;
+let FREE_CHUNKS: number;
 
-const ALLOCATED_ARRAY = new Uint8Array(ALLOCATED_BUFFER);
+export const init = (settings: Settings = {}) => {
+	Object.assign(SETTINGS, settings);
 
-let FREE_CHUNKS = SETTINGS.DEFAULT_POOL_SIZE / SETTINGS.DEFAULT_CHUNK_SIZE;
+	MAIN_BUFFER = new ArrayBuffer(SETTINGS.DEFAULT_POOL_SIZE, {
+		maxByteLength: SETTINGS.MAX_POOL_SIZE,
+	});
+
+	ALLOCATED_BUFFER = new ArrayBuffer(
+		SETTINGS.DEFAULT_POOL_SIZE / SETTINGS.DEFAULT_CHUNK_SIZE,
+		{ maxByteLength: SETTINGS.MAX_POOL_SIZE / SETTINGS.DEFAULT_CHUNK_SIZE },
+	);
+
+	ALLOCATED_ARRAY = new Uint8Array(ALLOCATED_BUFFER);
+
+	FREE_CHUNKS = SETTINGS.DEFAULT_POOL_SIZE / SETTINGS.DEFAULT_CHUNK_SIZE;
+};
 
 export const alloc = (chunks: number): State => {
 	if (FREE_CHUNKS < chunks) {
@@ -39,7 +53,7 @@ export const alloc = (chunks: number): State => {
 		ALLOCATED_ARRAY[index + i] = 1;
 	}
 
-	const buffer = BUFFER.slice(
+	const buffer = MAIN_BUFFER.slice(
 		index * SETTINGS.DEFAULT_CHUNK_SIZE,
 		index * SETTINGS.DEFAULT_CHUNK_SIZE + chunks * SETTINGS.DEFAULT_CHUNK_SIZE,
 	);
@@ -60,7 +74,7 @@ export const free = (state: State) => {
 };
 
 export const grow = () => {
-	BUFFER.resize(BUFFER.byteLength * 2);
+	MAIN_BUFFER.resize(MAIN_BUFFER.byteLength * 2);
 	ALLOCATED_BUFFER.resize(ALLOCATED_BUFFER.byteLength * 2);
 	FREE_CHUNKS = ALLOCATED_BUFFER.byteLength * 2 - FREE_CHUNKS;
 };

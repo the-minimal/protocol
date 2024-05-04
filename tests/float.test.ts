@@ -1,8 +1,10 @@
 import {fc, test} from "@fast-check/vitest";
-import {describe, expect} from "vitest";
-import {decode, encode, Type} from "../src";
+import {beforeEach, describe, expect} from "vitest";
+import {decode, encode, init, Type} from "../src";
 
 describe("float", () => {
+    beforeEach(() => init());
+
     test.prop([fc.float()])("float32", (value) => {
         const type = { type: "float", size: 32 } satisfies Type.Float;
 

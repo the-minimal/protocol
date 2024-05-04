@@ -1,9 +1,11 @@
 import {fc, test} from "@fast-check/vitest";
-import {describe, expect} from "vitest";
-import {decode, encode, Type} from "../src";
+import {beforeEach, describe, expect} from "vitest";
+import {decode, encode, init, Type} from "../src";
 import {UINT16, UINT8} from "./shared";
 
 describe("string", () => {
+    beforeEach(() => init());
+
     describe("ascii", () => {
         test.prop([fc.string({ maxLength: UINT8.max })])("8", (value) => {
             const type = { type: "string", kind: "ascii", size: 8 } satisfies Type.String;

@@ -1,9 +1,11 @@
 import {fc, test} from "@fast-check/vitest";
-import {describe, expect} from "vitest";
-import {decode, encode, Type} from "../src";
+import {beforeEach, describe, expect} from "vitest";
+import {decode, encode, init, Type} from "../src";
 import {INT16, INT32, INT8, UINT16, UINT32, UINT8} from "./shared";
 
 describe("int", () => {
+    beforeEach(() => init());
+
     test.prop([fc.integer(UINT8)])("uint8", (value) => {
         const type = { type: "int", size: 8, signed: false } satisfies Type.Int;
 

@@ -36,8 +36,8 @@ const TYPES = {
 		}
 	},
 	object: (state: State, type: Type.Object, value: Record<string, unknown>) => {
-		for (let i = 0; i < type.properties.length; ++i) {
-			run(state, type.properties[i], value[type.properties[i].key]);
+		for (let i = 0; i < type.value.length; ++i) {
+			run(state, type.value[i], value[type.value[i].key]);
 		}
 	},
 	array: (state: State, type: Type.Array, value: unknown[]) => {
@@ -48,15 +48,15 @@ const TYPES = {
 		state.offset += type.size / 8;
 
 		for (let i = 0; i < value.length; ++i) {
-			run(state, type.item, value[i]);
+			run(state, type.value, value[i]);
 		}
 	},
 	enum: (state: State, type: Type.Enum, value: string) => {
-		state.view.setUint8(state.offset++, type.options.indexOf(value));
+		state.view.setUint8(state.offset++, type.value.indexOf(value));
 	},
 	tuple: (state: State, type: Type.Tuple, value: unknown[]) => {
-		for (let i = 0; i < type.items.length; ++i) {
-			run(state, type.items[i], value[i]);
+		for (let i = 0; i < type.value.length; ++i) {
+			run(state, type.value[i], value[i]);
 		}
 	},
 };

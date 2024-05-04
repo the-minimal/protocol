@@ -1,9 +1,11 @@
 import {fc, test} from "@fast-check/vitest";
-import {describe, expect} from "vitest";
-import {decode, encode, Type} from "../src";
+import {beforeEach, describe, expect} from "vitest";
+import {decode, encode, init, Type} from "../src";
 import {UINT8} from "./shared";
 
 describe("assert", () => {
+    beforeEach(() => init());
+
     const assert = (value: unknown) => {
         if (value === 0) {
             throw new Error("zero");

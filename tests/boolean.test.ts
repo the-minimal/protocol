@@ -1,6 +1,8 @@
 import {fc, test} from "@fast-check/vitest";
-import {expect} from "vitest";
-import {decode, encode, Type} from "../src";
+import {beforeEach, expect} from "vitest";
+import {decode, encode, init, Type} from "../src";
+
+beforeEach(() => init());
 
 test.prop([fc.boolean()])("boolean", (value) => {
     const type = {

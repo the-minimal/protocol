@@ -1,7 +1,9 @@
 import {fc, test} from "@fast-check/vitest";
-import {expect} from "vitest";
-import {decode, encode, Type} from "../src";
+import {beforeEach, expect} from "vitest";
+import {decode, encode, init, Type} from "../src";
 import {UINT8} from "./shared";
+
+beforeEach(() => init());
 
 test.prop([fc.record({
    name: fc.string(),
@@ -9,7 +11,7 @@ test.prop([fc.record({
 })])("object", (value) => {
     const type = {
         type: "object",
-        properties: [
+        value: [
             {key: "name", type: "string", kind: "ascii", size: 8},
             {key: "age", type: "int", size: 8},
         ]

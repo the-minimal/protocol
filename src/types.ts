@@ -20,12 +20,12 @@ export namespace Type {
 
 	export type Object = New<{
 		type: "object";
-		properties: (Any & Required<Keyable>)[];
+		value: (Any & Required<Keyable>)[];
 	}>;
 
 	export type Array = New<{
 		type: "array";
-		item: Any;
+		value: Any;
 		size?: 8 | 16 | 32;
 	}>;
 
@@ -52,12 +52,12 @@ export namespace Type {
 
 	export type Enum = New<{
 		type: "enum";
-		options: string[];
+		value: string[];
 	}>;
 
 	export type Tuple = New<{
 		type: "tuple";
-		items: Any[];
+		value: Any[];
 	}>;
 }
 
@@ -74,7 +74,7 @@ export type Position = {
 };
 
 export type Settings = Partial<{
-	DEFAULT_SIZE: number;
-	MAX_SIZE: number;
-	MAX_BUFFERS: number;
+	DEFAULT_POOL_SIZE: number;
+	MAX_POOL_SIZE: number;
+	DEFAULT_CHUNK_SIZE: number;
 }>;
