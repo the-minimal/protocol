@@ -8,7 +8,6 @@ type MaxLength = {
 const STRING = {
 	ascii: 1,
 	utf8: 3,
-	utf16: 2,
 };
 
 const ARRAY = {

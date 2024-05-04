@@ -1,94 +1,97 @@
-import type { Infer, Position, Type } from "./types";
+import type { Infer, State, Type } from "./types";
+
+const utf8 = new TextDecoder("utf-8");
+const ascii = new TextDecoder("ascii");
 
 const TYPES = {
-	boolean: (position: Position, _: Type.Boolean, view: DataView) => {
-		return view.getUint8(position.offset) === 1;
+	boolean: (state: State, _: Type.Boolean) => {
+		return state.view.getUint8(state.offset) === 1;
 	},
-	int: (position: Position, type: Type.Int, view: DataView) => {
+	int: (state: State, type: Type.Int) => {
 		type.size ??= 8;
 
-		const result = view[`get${type.signed ? "Int" : "Uint"}${type.size}`](
-			position.offset,
+		const result = state.view[`get${type.signed ? "Int" : "Uint"}${type.size}`](
+			state.offset,
 		);
 
-		position.offset += type.size / 8;
+		state.offset += type.size / 8;
 
 		return result;
 	},
-	float: (position: Position, type: Type.Float, view: DataView) => {
+	float: (state: State, type: Type.Float) => {
 		type.size ??= 32;
 
-		const result = view[`getFloat${type.size}`](position.offset);
+		const result = state.view[`getFloat${type.size}`](state.offset);
 
-		position.offset += type.size / 8;
+		state.offset += type.size / 8;
 
 		return result;
 	},
-	// TODO: add support for utf8/16
-	string: (position: Position, type: Type.Int, view: DataView) => {
+	string: (state: State, type: Type.String) => {
 		type.size ??= 8;
+		type.kind ??= "ascii";
 
-		const length = view[`getUint${type.size}`](position.offset);
+		const length = state.view[`getUint${type.size}`](state.offset);
 
-		position.offset += type.size / 8;
+		state.offset += type.size / 8;
 
-		let result = "";
+		const result = (type.kind === "ascii" ? ascii : utf8).decode(
+			new Uint8Array(state.buffer, state.offset, length),
+		);
 
-		for (let i = 0; i < length; ++i) {
-			result += String.fromCharCode(view.getUint8(position.offset++));
-		}
+		state.offset += length;
 
 		return result;
 	},
-	object: (position: Position, type: Type.Object, view: DataView) => {
+	object: (state: State, type: Type.Object) => {
 		const result: Record<string, unknown> = {};
 
 		for (let i = 0; i < type.value.length; ++i) {
-			result[type.value[i].key] = run(position, type.value[i], view);
+			result[type.value[i].key] = run(state, type.value[i]);
 		}
 
 		return result;
 	},
-	array: (position: Position, type: Type.Array, view: DataView) => {
+	array: (state: State, type: Type.Array) => {
 		type.size ??= 8;
 
-		const length = view[`getUint${type.size}`](position.offset);
+		const length = state.view[`getUint${type.size}`](state.offset);
 
-		position.offset += type.size / 8;
+		state.offset += type.size / 8;
 
 		const result: unknown[] = [];
 
 		for (let i = 0; i < length; ++i) {
-			result[i] = run(position, type.value, view);
+			result[i] = run(state, type.value);
 		}
 
 		return result;
 	},
-	enum: (position: Position, type: Type.Enum, view: DataView) => {
-		return type.value[view.getUint8(position.offset++)];
+	enum: (state: State, type: Type.Enum) => {
+		return type.value[state.view.getUint8(state.offset++)];
 	},
-	tuple: (position: Position, type: Type.Tuple, view: DataView) => {
+	tuple: (state: State, type: Type.Tuple) => {
 		const result: unknown[] = [];
 
 		for (let i = 0; i < type.value.length; ++i) {
-			result[i] = run(position, type.value[i], view);
+			result[i] = run(state, type.value[i]);
 		}
 
 		return result;
 	},
 };
 
-const run = (position: Position, type: Type.Any, view: DataView) => {
+const run = (state: State, type: Type.Any) => {
 	if (type.nullable) {
-		const isNull = view.getUint8(position.offset++) === 1;
+		const isNull = state.view.getUint8(state.offset++) === 1;
 
 		if (isNull) {
-			position.offset++;
+			state.offset++;
 			return null;
 		}
 	}
 
-	const result = (TYPES as any)[type.type](position, type, view);
+	const result = (TYPES as any)[type.type](state, type);
 
 	type.assert?.(result);
 
@@ -99,5 +102,14 @@ export const decode = <$Type extends Type.Any>(
 	type: $Type,
 	buffer: ArrayBuffer,
 ) => {
-	return run({ offset: 0 }, type, new DataView(buffer)) as Infer<$Type>;
+	return run(
+		{
+			offset: 0,
+			buffer,
+			view: new DataView(buffer),
+			index: 0,
+			chunks: 0,
+		},
+		type,
+	) as Infer<$Type>;
 };

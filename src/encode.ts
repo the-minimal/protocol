@@ -1,6 +1,8 @@
 import type { Infer, State, Type } from "./types";
 import { alloc, free } from "./utils";
 
+const encoder = new TextEncoder();
+
 const TYPES = {
 	boolean: (state: State, _: Type.Boolean, value: boolean) => {
 		state.view.setUint8(state.offset++, +value);
@@ -22,17 +24,26 @@ const TYPES = {
 
 		state.offset += type.size / 8;
 	},
-	// TODO: add support for utf8/16
 	string: (state: State, type: Type.String, value: string) => {
 		type.size ??= 8;
 		type.kind ??= "ascii";
 
-		state.view[`setUint${type.size}`](state.offset, value.length);
+		if (type.kind === "ascii") {
+			state.view[`setUint${type.size}`](state.offset, value.length);
 
-		state.offset += type.size / 8;
+			state.offset += type.size / 8;
 
-		for (let i = 0; i < value.length; ++i) {
-			state.view.setUint8(state.offset++, value.charCodeAt(i));
+			for (let i = 0; i < value.length; ++i) {
+				state.view.setUint8(state.offset++, value.charCodeAt(i));
+			}
+		} else {
+			const written = encoder.encodeInto(
+				value,
+				new Uint8Array(state.buffer, state.offset + type.size / 8),
+			).written;
+
+			state.view[`setUint${type.size}`](state.offset, written);
+			state.offset += type.size / 8 + written;
 		}
 	},
 	object: (state: State, type: Type.Object, value: Record<string, unknown>) => {

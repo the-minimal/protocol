@@ -66,16 +66,6 @@ describe("estimate", () => {
             bytes: 49,
             chunks: 7
         });
-
-        expect(estimate({ type: "string", kind: "utf16", size: 8 }, SETTINGS)).toEqual({
-            bytes: 513,
-            chunks: 65
-        });
-
-        expect(estimate({ type: "string", kind: "utf16", size: 8, maxLength: 16 }, SETTINGS)).toEqual({
-            bytes: 33,
-            chunks: 5
-        });
     });
 
 

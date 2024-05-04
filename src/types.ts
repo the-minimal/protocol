@@ -43,7 +43,7 @@ export namespace Type {
 
 	export type String = New<{
 		type: "string";
-		kind?: "ascii" | "utf8" | "utf16";
+		kind?: "ascii" | "utf8";
 		size?: 8 | 16;
 	}>;
 
@@ -111,10 +111,6 @@ export type State = {
 	view: DataView;
 	index: number;
 	chunks: number;
-};
-
-export type Position = {
-	offset: number;
 };
 
 export type Settings = {

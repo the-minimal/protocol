@@ -26,5 +26,26 @@ describe("string", () => {
         });
     });
 
-    // TODO: once utf8/16 are implemented, add tests for them
+    describe("utf8", () => {
+        test("8", () => {
+            const type = { type: "string", kind: "utf8", size: 8 } satisfies Type.String;
+            const value = "ᥞH놀tDҚKh~Ӷ牅򞿫Ⱥ򐻗*񩳾䷂Q🚂֔񴕈̾彷񩺞%ޮ􀯥򲰕沤礓ͷ񏴶";
+
+            const encoded = encode(type, value);
+            const decoded = decode(type, encoded);
+
+            expect(decoded).toBe(value);
+        });
+
+        test("16", () => {
+            const type = { type: "string", kind: "utf8", size: 16 } satisfies Type.String;
+            const value = "ᥞH놀tDҚKh~Ӷ牅򞿫Ⱥ򐻗*񩳾䷂Q🚂֔񴕈̾彷񩺞%ޮ􀯥򲰕沤礓ͷ񏴶";
+
+            const encoded = encode(type, value);
+            const decoded = decode(type, encoded);
+
+            expect(decoded).toBe(value);
+        });
+    });
+
 });
