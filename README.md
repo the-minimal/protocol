@@ -18,6 +18,7 @@ Minimal JSON-like binary schema-full protocol for JS/TS with BYO runtime data va
   - `enum`
   - `tuple`
 - Support for nullable
+- Estimate payload size from `Type` with `estimate`
 
 ## API
 
@@ -64,6 +65,27 @@ const data = decode({
         { key: "age", type: "int" } 
     ]
 }, arrayBuffer);
+```
+
+### `estimate`
+
+Estimates payload size of `Type` in bytes and chunks based on provided `Settings`.
+
+```ts
+const { 
+  bytes,  // 66 
+  chunks  // 9
+} = estimate({
+  type: "object",
+  value: [
+    { key: "email", type: "string", maxLength: 64 },
+    { key: "age", type: "int" } 
+  ]
+}, {
+  MAX_POOL_SIZE: 256,
+  DEFAULT_POOL_SIZE: 16,
+  DEFAULT_CHUNK_SIZE: 8,
+});
 ```
 
 ## Memory

@@ -26,7 +26,7 @@ export namespace Type {
 	export type Array = New<{
 		type: "array";
 		value: Any;
-		size?: 8 | 16 | 32;
+		size?: 8 | 16;
 	}>;
 
 	export type Boolean = New<{
@@ -73,8 +73,8 @@ export type Position = {
 	offset: number;
 };
 
-export type Settings = Partial<{
+export type Settings = {
 	DEFAULT_POOL_SIZE: number;
 	MAX_POOL_SIZE: number;
 	DEFAULT_CHUNK_SIZE: number;
-}>;
+};

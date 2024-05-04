@@ -11,7 +11,7 @@ let ALLOCATED_BUFFER: ArrayBuffer;
 let ALLOCATED_ARRAY: Uint8Array;
 let FREE_CHUNKS: number;
 
-export const init = (settings: Settings = {}) => {
+export const init = (settings: Partial<Settings> = {}) => {
 	Object.assign(SETTINGS, settings);
 
 	MAIN_BUFFER = new ArrayBuffer(SETTINGS.DEFAULT_POOL_SIZE, {
