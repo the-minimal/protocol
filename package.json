@@ -1,24 +1,71 @@
 {
-  "name": "protocol",
-  "module": "src/index.ts",
+  "name": "@the-minimal/protocol",
   "type": "module",
+  "version": "0.0.0",
+  "license": "MIT",
+  "author": "Miroslav Vršecký <yamiteru@icloud.com>",
+  "description": "Minimal JSON-like binary schema-full protocol for JS/TS with BYO runtime data validations",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/the-minimal/protocol.git",
+    "directory": "src"
+  },
+  "keywords": [
+    "json",
+    "protocol",
+    "protocol-buffers",
+    "bson",
+    "jsonb",
+    "binary-protocol",
+    "binary-json",
+    "avro",
+    "javascript",
+    "typescript"
+  ],
+  "homepage": "https://github.com/the-minimal/protocol",
+  "bugs": {
+    "url": "https://github.com/the-minimal/protocol/issues"
+  },
   "scripts": {
-    "start": "bun index.ts",
-    "check": "bunx @biomejs/biome check --apply ./",
-    "build": "tsup && bun build:stats",
-    "build:stats": "bun scripts/stats.ts",
-    "test": "vitest run --coverage",
-    "estimate": "bun src/estimate.ts"
+    "prepublishOnly": "bun run check && bun run build && bun run test",
+    "release": "release-it",
+    "build": "bun run build:tsup && bun run build:stats",
+    "build:tsup": "tsup",
+    "build:stats": "bun run scripts/stats.ts",
+    "test": "vitest run --typecheck",
+    "test:coverage": "vitest run --coverage",
+    "check": "bunx @biomejs/biome check --apply ./"
   },
   "devDependencies": {
-    "@biomejs/biome": "1.7.0",
+    "@biomejs/biome": "1.7.2",
     "@fast-check/vitest": "0.1.1",
     "@types/bun": "latest",
-    "@vitest/coverage-v8": "1.5.3",
+    "@vitest/coverage-v8": "1.6.0",
     "release-it": "17.2.1",
     "tsup": "8.0.2",
     "vite-tsconfig-paths": "4.3.2",
-    "vitest": "1.5.3"
+    "vitest": "1.6.0"
   },
   "peerDependencies": {
     "typescript": "5.4.5"
