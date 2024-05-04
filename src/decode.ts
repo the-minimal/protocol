@@ -1,40 +1,36 @@
-import type { Protocol } from "./types";
-
-type Position = {
-	offset: number;
-};
+import type { Position, Type } from "./types";
 
 const TYPES = {
-	boolean: (position: Position, _: Protocol.Boolean, view: DataView) => {
+	boolean: (position: Position, _: Type.Boolean, view: DataView) => {
 		return view.getUint8(position.offset) === 1;
 	},
-	int: (position: Position, type: Protocol.Int, view: DataView) => {
-		const size = type.size ?? 8;
-		const bytes = size / 8;
-		const result = view[`get${type.signed ? "Int" : "Uint"}${size}`](
+	int: (position: Position, type: Type.Int, view: DataView) => {
+		type.size ??= 8;
+
+		const result = view[`get${type.signed ? "Int" : "Uint"}${type.size}`](
 			position.offset,
 		);
 
-		position.offset += bytes;
+		position.offset += type.size / 8;
 
 		return result;
 	},
-	float: (position: Position, type: Protocol.Float, view: DataView) => {
-		const size = type.size ?? 32;
-		const bytes = size / 8;
-		const result = view[`getFloat${size}`](position.offset);
+	float: (position: Position, type: Type.Float, view: DataView) => {
+		type.size ??= 32;
 
-		position.offset += bytes;
+		const result = view[`getFloat${type.size}`](position.offset);
+
+		position.offset += type.size / 8;
 
 		return result;
 	},
 	// TODO: add support for utf8/16
-	string: (position: Position, type: Protocol.Int, view: DataView) => {
-		const size = type.size ?? 8;
-		const bytes = size / 8;
-		const length = view[`getUint${size}`](position.offset);
+	string: (position: Position, type: Type.Int, view: DataView) => {
+		type.size ??= 8;
 
-		position.offset += bytes;
+		const length = view[`getUint${type.size}`](position.offset);
+
+		position.offset += type.size / 8;
 
 		let result = "";
 
@@ -44,7 +40,7 @@ const TYPES = {
 
 		return result;
 	},
-	object: (position: Position, type: Protocol.Object, view: DataView) => {
+	object: (position: Position, type: Type.Object, view: DataView) => {
 		const result: Record<string, unknown> = {};
 
 		for (let i = 0; i < type.properties.length; ++i) {
@@ -53,12 +49,12 @@ const TYPES = {
 
 		return result;
 	},
-	array: (position: Position, type: Protocol.Array, view: DataView) => {
-		const size = type.size ?? 8;
-		const bytes = size / 8;
-		const length = view[`getUint${size}`](position.offset);
+	array: (position: Position, type: Type.Array, view: DataView) => {
+		type.size ??= 8;
 
-		position.offset += bytes;
+		const length = view[`getUint${type.size}`](position.offset);
+
+		position.offset += type.size / 8;
 
 		const result: unknown[] = [];
 
@@ -68,10 +64,10 @@ const TYPES = {
 
 		return result;
 	},
-	enum: (position: Position, type: Protocol.Enum, view: DataView) => {
+	enum: (position: Position, type: Type.Enum, view: DataView) => {
 		return type.options[view.getUint8(position.offset++)];
 	},
-	tuple: (position: Position, type: Protocol.Tuple, view: DataView) => {
+	tuple: (position: Position, type: Type.Tuple, view: DataView) => {
 		const result: unknown[] = [];
 
 		for (let i = 0; i < type.items.length; ++i) {
@@ -83,10 +79,6 @@ const TYPES = {
 };
 
 const run = (position: Position, type: any, view: DataView) => {
-	if (typeof type === "string") {
-		type = { type };
-	}
-
 	if (type.nullable) {
 		const isNull = view.getUint8(position.offset++) === 1;
 
@@ -98,13 +90,11 @@ const run = (position: Position, type: any, view: DataView) => {
 
 	const result = (TYPES as any)[type.type](position, type, view);
 
-	if (type.assert) {
-		type.assert(result);
-	}
+	type.assert?.(result);
 
 	return result;
 };
 
-export const decode = (type: Protocol.Any | string, buffer: ArrayBuffer) => {
+export const decode = (type: Type.Any | string, buffer: ArrayBuffer) => {
 	return run({ offset: 0 }, type, new DataView(buffer));
 };

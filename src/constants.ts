@@ -1,0 +1,5 @@
+export const SETTINGS = {
+	MAX_BUFFERS: 10,
+	DEFAULT_SIZE: 1_000,
+	MAX_SIZE: 512_00,
+};

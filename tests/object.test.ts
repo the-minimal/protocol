@@ -1,6 +1,6 @@
 import {fc, test} from "@fast-check/vitest";
 import {expect} from "vitest";
-import {decode, encode, Protocol} from "../src";
+import {decode, encode, Type} from "../src";
 import {UINT8} from "./shared";
 
 test.prop([fc.record({
@@ -13,7 +13,7 @@ test.prop([fc.record({
             {key: "name", type: "string", kind: "ascii", size: 8},
             {key: "age", type: "int", size: 8},
         ]
-    } satisfies Protocol.Object;
+    } satisfies Type.Object;
 
     const encoded = encode(type, value);
     const decoded = decode(type, encoded);

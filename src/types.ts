@@ -1,4 +1,4 @@
-export namespace Protocol {
+export namespace Type {
 	type Nullable = {
 		nullable?: boolean;
 	};
@@ -11,57 +11,62 @@ export namespace Protocol {
 		key?: string;
 	};
 
-	type Type<$Type extends Any> = $Type & Nullable & Assertable & Keyable;
+	type New<$Type extends Any> = $Type & Nullable & Assertable & Keyable;
 
-	export type Object = Type<{
+	export type Any = { type: string } & Nullable &
+		Assertable &
+		Keyable &
+		Record<string, unknown>;
+
+	export type Object = New<{
 		type: "object";
 		properties: (Any & Required<Keyable>)[];
 	}>;
 
-	export type Array = Type<{
+	export type Array = New<{
 		type: "array";
-		item: Any | string;
+		item: Any;
 		size?: 8 | 16 | 32;
 	}>;
 
-	export type Boolean = Type<{
+	export type Boolean = New<{
 		type: "boolean";
 	}>;
 
-	export type Int = Type<{
+	export type Int = New<{
 		type: "int";
 		signed?: boolean;
 		size?: 8 | 16 | 32;
 	}>;
 
-	export type Float = Type<{
+	export type Float = New<{
 		type: "float";
 		size?: 32 | 64;
 	}>;
 
-	export type String = Type<{
+	export type String = New<{
 		type: "string";
 		kind?: "ascii" | "utf8" | "utf16";
 		size?: 8 | 16;
 	}>;
 
-	export type Enum = Type<{
+	export type Enum = New<{
 		type: "enum";
 		options: string[];
 	}>;
 
-	export type Tuple = Type<{
+	export type Tuple = New<{
 		type: "tuple";
-		items: (Any | string)[];
+		items: Any[];
 	}>;
-
-	export type Any =
-		| Object
-		| Array
-		| Boolean
-		| Int
-		| Float
-		| String
-		| Enum
-		| Tuple;
 }
+
+export type State = {
+	offset: number;
+	buffer: ArrayBuffer;
+	view: DataView;
+};
+
+export type Position = {
+	offset: number;
+};

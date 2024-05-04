@@ -1,6 +1,6 @@
 import {fc, test} from "@fast-check/vitest";
 import {expect} from "vitest";
-import {decode, encode, Protocol} from "../src";
+import {decode, encode, Type} from "../src";
 import {UINT8} from "./shared";
 
 test.prop([fc.tuple(fc.integer(UINT8), fc.string())])("tuple", (value) => {
@@ -10,7 +10,7 @@ test.prop([fc.tuple(fc.integer(UINT8), fc.string())])("tuple", (value) => {
             {type: "int", size: 8},
             {type: "string", kind: "ascii", size: 8},
         ]
-    } satisfies Protocol.Tuple;
+    } satisfies Type.Tuple;
 
     const encoded = encode(type, value);
     const decoded = decode(type, encoded);

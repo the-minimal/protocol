@@ -1,107 +1,83 @@
-import type { Protocol } from "./types";
-import { type Buffer, alloc, check, free } from "./utils";
+import type { State, Type } from "./types";
+import { alloc, check, free } from "./utils";
 
 const TYPES = {
-	boolean: (buffer: Buffer, _: Protocol.Boolean, value: boolean) => {
-		buffer.view.setUint8(buffer.offset++, +value);
+	boolean: (state: State, _: Type.Boolean, value: boolean) => {
+		state.view.setUint8(state.offset++, +value);
 	},
-	int: (buffer: Buffer, type: Protocol.Int, value: number) => {
-		const size = type.size ?? 8;
-		const bytes = size / 8;
-
-		check(buffer, bytes);
-		buffer.view[`set${type.signed ? "Int" : "Uint"}${size}`](
-			buffer.offset,
+	int: (state: State, type: Type.Int, value: number) => {
+		type.size ??= 8;
+		check(state, type.size / 8);
+		state.view[`set${type.signed ? "Int" : "Uint"}${type.size}`](
+			state.offset,
 			value,
 		);
-		buffer.offset += bytes;
+		state.offset += type.size / 8;
 	},
-	float: (buffer: Buffer, type: Protocol.Float, value: number) => {
-		const size = type.size ?? 32;
-		const bytes = size / 8;
-
-		check(buffer, bytes);
-		buffer.view[`setFloat${size}`](buffer.offset, value);
-		buffer.offset += bytes;
+	float: (state: State, type: Type.Float, value: number) => {
+		type.size ??= 32;
+		check(state, type.size / 8);
+		state.view[`setFloat${type.size}`](state.offset, value);
+		state.offset += type.size / 8;
 	},
 	// TODO: add support for utf8/16
-	string: (buffer: Buffer, type: Protocol.String, value: string) => {
-		const size = type.size ?? 8;
-		const bytes = size / 8;
-
-		check(buffer, bytes + value.length);
-		buffer.view[`setUint${size}`](buffer.offset, value.length);
-		buffer.offset += bytes;
+	string: (state: State, type: Type.String, value: string) => {
+		type.size ??= 8;
+		check(state, type.size / 8 + value.length);
+		state.view[`setUint${type.size}`](state.offset, value.length);
+		state.offset += type.size / 8;
 
 		for (let i = 0; i < value.length; ++i) {
-			buffer.view.setUint8(buffer.offset++, value.charCodeAt(i));
+			state.view.setUint8(state.offset++, value.charCodeAt(i));
 		}
 	},
-	object: (
-		buffer: Buffer,
-		type: Protocol.Object,
-		value: Record<string, unknown>,
-	) => {
+	object: (state: State, type: Type.Object, value: Record<string, unknown>) => {
 		for (let i = 0; i < type.properties.length; ++i) {
-			run(buffer, type.properties[i], value[type.properties[i].key]);
+			run(state, type.properties[i], value[type.properties[i].key]);
 		}
 	},
-	array: (buffer: Buffer, type: Protocol.Array, value: unknown[]) => {
-		const size = type.size ?? 8;
-		const bytes = size / 8;
-
-		check(buffer, bytes);
-		buffer.view[`setUint${size}`](buffer.offset, value.length);
-		buffer.offset += bytes;
+	array: (state: State, type: Type.Array, value: unknown[]) => {
+		type.size ??= 8;
+		check(state, type.size / 8);
+		state.view[`setUint${type.size}`](state.offset, value.length);
+		state.offset += type.size / 8;
 
 		for (let i = 0; i < value.length; ++i) {
-			run(buffer, type.item, value[i]);
+			run(state, type.item, value[i]);
 		}
 	},
-	enum: (buffer: Buffer, type: Protocol.Enum, value: string) => {
-		buffer.view.setUint8(buffer.offset++, type.options.indexOf(value));
+	enum: (state: State, type: Type.Enum, value: string) => {
+		state.view.setUint8(state.offset++, type.options.indexOf(value));
 	},
-	tuple: (buffer: Buffer, type: Protocol.Tuple, value: unknown[]) => {
+	tuple: (state: State, type: Type.Tuple, value: unknown[]) => {
 		for (let i = 0; i < type.items.length; ++i) {
-			run(buffer, type.items[i], value[i]);
+			run(state, type.items[i], value[i]);
 		}
 	},
 };
 
-const run = (buffer: Buffer, type: any, value: unknown) => {
-	if (typeof type === "string") {
-		type = { type };
-	}
-
-	const isNull = value === null;
-
+const run = (state: State, type: Type.Any, value: unknown) => {
 	if (type.nullable) {
-		check(buffer, 1);
-		buffer.view.setUint8(buffer.offset++, +isNull);
+		check(state, 1);
+		state.view.setUint8(state.offset++, +(value === null));
 
-		if (isNull) {
-			check(buffer, 1);
-			buffer.view.setUint8(buffer.offset++, 0);
+		if (value === null) {
+			check(state, 1);
+			state.view.setUint8(state.offset++, 0);
 
 			return;
 		}
 	}
 
-	if (type.assert) {
-		type.assert(value);
-	}
+	type.assert?.(value);
 
-	(TYPES as any)[type.type](buffer, type, value);
+	(TYPES as any)[type.type](state, type, value);
 };
 
-export const encode = (type: Protocol.Any | string, value: unknown) => {
+export const encode = (type: Type.Any, value: unknown) => {
 	const buffer = alloc();
 
 	run(buffer, type, value);
 
-	const result = buffer.buffer.slice(0, buffer.offset);
-
-	free(buffer);
-
-	return result;
+	return free(buffer);
 };

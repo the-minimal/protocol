@@ -1,6 +1,6 @@
 import {fc, test} from "@fast-check/vitest";
 import {describe, expect} from "vitest";
-import {decode, encode, Protocol} from "../src";
+import {decode, encode, Type} from "../src";
 import {UINT16, UINT8} from "./shared";
 
 describe("array", () => {
@@ -9,7 +9,7 @@ describe("array", () => {
             type: "array",
             size: 8,
             item: {type: "int", size: 8}
-        } satisfies Protocol.Array;
+        } satisfies Type.Array;
 
         const encoded = encode(type, value);
         const decoded = decode(type, encoded);
@@ -22,7 +22,7 @@ describe("array", () => {
             type: "array",
             size: 16,
             item: {type: "int", size: 8}
-        } satisfies Protocol.Array;
+        } satisfies Type.Array;
 
         const encoded = encode(type, value);
         const decoded = decode(type, encoded);

@@ -1,38 +1,11 @@
-export type Buffer = {
-	offset: number;
-	buffer: ArrayBuffer;
-	view: DataView;
-};
+import { SETTINGS } from "./constants";
+import type { State } from "./types";
 
-const FREE: Buffer[] = [];
+const FREE: State[] = [];
 
-const MAX_BUFFERS = 10;
-const DEFAULT_SIZE = 1000;
-const MAX_SIZE = 512_000;
-
-const SETTINGS = {
-	MAX_BUFFERS,
-	DEFAULT_SIZE,
-	MAX_SIZE,
-};
-
-export const setup = (
-	settings: Partial<{
-		maxBuffers: number;
-		defaultSize: number;
-		maxSize: number;
-	}>,
-) => {
-	SETTINGS.MAX_BUFFERS = settings.maxBuffers ?? MAX_BUFFERS;
-	SETTINGS.DEFAULT_SIZE = settings.defaultSize ?? DEFAULT_SIZE;
-	SETTINGS.MAX_SIZE = settings.maxSize ?? MAX_SIZE;
-};
-
-// TODO: move these function into internal utils
-
-export const alloc = (): Buffer => {
+export const alloc = (): State => {
 	if (FREE.length) {
-		return FREE.pop() as Buffer;
+		return FREE.pop() as State;
 	}
 
 	const buffer = new ArrayBuffer(SETTINGS.DEFAULT_SIZE, {
@@ -46,17 +19,19 @@ export const alloc = (): Buffer => {
 	};
 };
 
-export const free = (buffer: Buffer) => {
+export const free = (state: State) => {
 	if (FREE.length < SETTINGS.MAX_BUFFERS) {
-		buffer.buffer.resize(SETTINGS.DEFAULT_SIZE);
-		buffer.offset = 0;
+		state.buffer.resize(SETTINGS.DEFAULT_SIZE);
+		state.offset = 0;
 
-		FREE.push(buffer);
+		FREE.push(state);
 	}
+
+	return state.buffer.slice(0, state.offset);
 };
 
-export const check = (buffer: Buffer, size: number) => {
-	if (buffer.offset + size > SETTINGS.DEFAULT_SIZE) {
-		buffer.buffer.resize(buffer.buffer.byteLength * 2);
+export const check = (state: State, size: number) => {
+	if (state.offset + size > SETTINGS.DEFAULT_SIZE) {
+		state.buffer.resize(state.buffer.byteLength * 2);
 	}
 };
