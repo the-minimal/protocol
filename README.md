@@ -19,6 +19,7 @@ Minimal JSON-like binary schema-full protocol for JS/TS with BYO runtime data va
   - `tuple`
 - Support for nullable
 - Estimate payload size from `Type` with `estimate`
+- Static type inference from `Type`
 
 ## API
 
@@ -86,6 +87,28 @@ const {
   DEFAULT_POOL_SIZE: 16,
   DEFAULT_CHUNK_SIZE: 8,
 });
+```
+
+### `Infer`
+
+Once you create a `Type` you can easily infer it with `Infer`.
+
+`encode` uses `Infer` for its input value and `decode` for its output value.
+
+```ts
+const user = {
+    type: "object",
+    value: [
+        { key: "name", type: "string" },
+        { key: "age", type: "int" } 
+    ]
+} as const;
+
+// {
+//     name: string,
+//     age: number
+// }
+type User = Infer<typeof user>;
 ```
 
 ## Memory
