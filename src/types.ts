@@ -65,8 +65,16 @@ export type State = {
 	offset: number;
 	buffer: ArrayBuffer;
 	view: DataView;
+	index: number;
+	chunks: number;
 };
 
 export type Position = {
 	offset: number;
 };
+
+export type Settings = Partial<{
+	DEFAULT_SIZE: number;
+	MAX_SIZE: number;
+	MAX_BUFFERS: number;
+}>;

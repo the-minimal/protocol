@@ -78,7 +78,7 @@ const TYPES = {
 	},
 };
 
-const run = (position: Position, type: any, view: DataView) => {
+const run = (position: Position, type: Type.Any, view: DataView) => {
 	if (type.nullable) {
 		const isNull = view.getUint8(position.offset++) === 1;
 
@@ -95,6 +95,6 @@ const run = (position: Position, type: any, view: DataView) => {
 	return result;
 };
 
-export const decode = (type: Type.Any | string, buffer: ArrayBuffer) => {
+export const decode = (type: Type.Any, buffer: ArrayBuffer) => {
 	return run({ offset: 0 }, type, new DataView(buffer));
 };
