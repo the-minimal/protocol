@@ -5,7 +5,8 @@
   "scripts": {
     "start": "bun index.ts",
     "check": "bunx @biomejs/biome check --apply ./",
-    "build": "tsup",
+    "build": "tsup && bun build:stats",
+    "build:stats": "bun scripts/stats.ts",
     "test": "vitest run --coverage"
   },
   "devDependencies": {

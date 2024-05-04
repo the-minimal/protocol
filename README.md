@@ -1,4 +1,23 @@
-# protocol
+![Protocol image](https://github.com/the-minimal/protocol/blob/main/docs/the-minimal-protocol.jpg?raw=true)
+
+Minimal JSON-like binary schema-full protocol for JS/TS with BYO runtime data validations.
+
+## Highlights
+
+- Small (< 1 KB)
+- Fast
+- Runtime data validations
+- Customizable memory
+- 8 types
+  - `boolean`
+  - `int`
+  - `float`
+  - `string`
+  - `object`
+  - `array`
+  - `enum`
+  - `tuple`
+- Support for nullable
 
 ## API
 
@@ -20,15 +39,40 @@ init({
 
 Encodes JS data into `ArrayBuffer` based on `Type`.
 
+```ts
+const arrayBuffer = encode({
+    type: "object",
+    value: [
+        { key: "name", type: "string" },
+        { key: "age", type: "int" } 
+    ]
+}, {
+    name: "Yamiteru",
+    age: 27
+});
+```
+
 ### `decode`
 
 Decodes `ArrayBuffer` into JS data based on `Type`.
+
+```ts
+const data = decode({
+    type: "object",
+    value: [
+        { key: "name", type: "string" },
+        { key: "age", type: "int" } 
+    ]
+}, arrayBuffer);
+```
 
 ## Memory
 
 Internally we use a growable `ArrayBuffer` of initial size of 512 KB and maximum size of 5 MB which we segment into 8 KB chunks.
 
 On every `encode` call we check if there is enough free chunks and if there is not then we attempt to grow the buffer.
+
+After `encode` is done it frees the chunks it used, so they can be reused in subsequent calls.
 
 Choose number of chunks based on your expected size of the data wisely since if the sub-buffer created from chunks is not big enough it will throw an overflow error.
 
@@ -158,7 +202,7 @@ Any type can be asserted by adding `assert` property to it.
 
 In `encode` it's run before encoding and in `decode` it's run after decoding.
 
-If type is `nullable` and the value is `null` we do not run `assert`.
+If type is `nullable` and the value is `null` we do not run `assert` in either `encode` or `decode`.
 
 ```ts
 {
