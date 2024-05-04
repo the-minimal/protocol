@@ -26,8 +26,6 @@ export const free = (state: State) => {
 
 		FREE.push(state);
 	}
-
-	return state.buffer.slice(0, state.offset);
 };
 
 export const check = (state: State, size: number) => {

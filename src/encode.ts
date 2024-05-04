@@ -75,9 +75,13 @@ const run = (state: State, type: Type.Any, value: unknown) => {
 };
 
 export const encode = (type: Type.Any, value: unknown) => {
-	const buffer = alloc();
+	const state = alloc();
 
-	run(buffer, type, value);
+	run(state, type, value);
 
-	return free(buffer);
+	const result = state.buffer.slice(0, state.offset);
+
+	free(state);
+
+	return result;
 };
