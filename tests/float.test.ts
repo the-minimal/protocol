@@ -1,12 +1,12 @@
 import {fc, test} from "@fast-check/vitest";
 import {beforeEach, describe, expect} from "vitest";
-import {decode, encode, init, Type} from "../src";
+import {decode, encode, init, Name} from "../src";
 
 describe("float", () => {
     beforeEach(() => init());
 
     test.prop([fc.float()])("float32", (value) => {
-        const type = { type: "float", size: 32 } satisfies Type.Float;
+        const type = { name: Name.Float, size: 4 } as const;
 
         const encoded = encode(type, value);
         const decoded = decode(type, encoded);
@@ -15,7 +15,7 @@ describe("float", () => {
     });
 
     test.prop([fc.integer()])("float64", (value) => {
-        const type = { type: "float", size: 64 } satisfies Type.Float;
+        const type = { name: Name.Float, size: 8 } as const;
 
         const encoded = encode(type, value);
         const decoded = decode(type, encoded);

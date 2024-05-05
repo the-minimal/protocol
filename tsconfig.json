@@ -10,6 +10,6 @@
     "isolatedModules": true,
     "strict": true
   },
-  "include": ["src", "tests","index.ts"],
-  "exclude": ["node_modules"]
+  "include": ["src", "tests", "scripts","index.ts"],
+  "exclude": ["node_modules", "dist", "coverage", "docs"]
 }

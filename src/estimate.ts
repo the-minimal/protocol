@@ -1,4 +1,5 @@
-import type { Settings, Type } from "./types";
+import type { Estimate, Estimates, Settings, Type } from "./types";
+import { Kind } from "./types";
 import { SETTINGS } from "./utils";
 
 type MaxLength = {
@@ -6,33 +7,39 @@ type MaxLength = {
 };
 
 const STRING = {
-	ascii: 1,
-	utf8: 3,
+	[Kind.Ascii]: 1,
+	[Kind.Utf8]: 3,
 };
 
 const ARRAY = {
-	8: 256,
-	16: 65_536,
+	1: 256,
+	2: 65_536,
 };
 
-const TYPES = {
-	boolean: (_: Type.Boolean) => 1,
-	int: (type: Type.Int) => (type.size ?? 8) / 8,
-	float: (type: Type.Float) => (type.size ?? 32) / 8,
-	string: (type: Type.String & MaxLength) =>
-		(type.size ?? 8) / 8 +
-		(type.maxLength ?? ARRAY[type.size ?? 8]) * STRING[type.kind ?? "ascii"],
-	object: (type: Type.Object) =>
-		type.value.reduce((acc, curr) => acc + run(curr), 0),
-	array: (type: Type.Array & MaxLength) =>
-		(type.size ?? 8) / 8 +
-		(type.maxLength ?? ARRAY[type.size ?? 8]) * run(type.value),
-	enum: (_: Type.Enum) => 1,
-	tuple: (type: Type.Tuple) =>
-		type.value.reduce((acc, curr) => acc + run(curr), 0),
-};
+const TYPES = [
+	// Boolean
+	(_: Type.Boolean) => 1,
+	// Int
+	(type: Type.Int) => type.size ?? 1,
+	// Float
+	(type: Type.Float) => type.size ?? 4,
+	// String
+	(type: Type.String & MaxLength) =>
+		(type.size ?? 1) +
+		(type.maxLength ?? ARRAY[type.size ?? 1]) * STRING[type.kind ?? Kind.Ascii],
+	// Object
+	(type: Type.Object) => type.value.reduce((acc, curr) => acc + run(curr), 0),
+	// Array
+	(type: Type.Array & MaxLength) =>
+		(type.size ?? 1) +
+		(type.maxLength ?? ARRAY[type.size ?? 1]) * run(type.value),
+	// Enum
+	(_: Type.Enum) => 1,
+	// Tuple
+	(type: Type.Tuple) => type.value.reduce((acc, curr) => acc + run(curr), 0),
+] satisfies Estimates;
 
-const run = (type: Type.Any) => (TYPES as any)[type.type](type) as number;
+const run = (type: Type.Any): number => (TYPES[type.name] as Estimate)(type);
 
 export const estimate = (type: Type.Any, settings: Settings = SETTINGS) => {
 	const bytes = run(type);

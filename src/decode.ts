@@ -1,41 +1,50 @@
-import type { Infer, State, Type } from "./types";
+import type { Decoder, Decoders, Infer, State, Type } from "./types";
+import { Kind } from "./types";
 
 const utf8 = new TextDecoder("utf-8");
 const ascii = new TextDecoder("ascii");
 
-const TYPES = {
-	boolean: (state: State, _: Type.Boolean) => {
+const TYPES = [
+	// Boolean
+	(state: State, _: Type.Boolean) => {
 		return state.view.getUint8(state.offset) === 1;
 	},
-	int: (state: State, type: Type.Int) => {
-		type.size ??= 8;
+	// Int
+	(state: State, type: Type.Int) => {
+		type.size ??= 1;
 
-		const result = state.view[`get${type.signed ? "Int" : "Uint"}${type.size}`](
+		const result = state.view[
+			`get${type.signed ? "Int" : "Uint"}${(type.size * 8) as 8 | 16 | 32}`
+		](state.offset);
+
+		state.offset += type.size;
+
+		return result;
+	},
+	// Float
+	(state: State, type: Type.Float) => {
+		type.size ??= 4;
+
+		const result = state.view[`getFloat${(type.size * 8) as 32 | 64}`](
 			state.offset,
 		);
 
-		state.offset += type.size / 8;
+		state.offset += type.size;
 
 		return result;
 	},
-	float: (state: State, type: Type.Float) => {
-		type.size ??= 32;
+	// String
+	(state: State, type: Type.String) => {
+		type.size ??= 1;
+		type.kind ??= Kind.Ascii;
 
-		const result = state.view[`getFloat${type.size}`](state.offset);
+		const length = state.view[`getUint${(type.size * 8) as 8 | 16}`](
+			state.offset,
+		);
 
-		state.offset += type.size / 8;
+		state.offset += type.size;
 
-		return result;
-	},
-	string: (state: State, type: Type.String) => {
-		type.size ??= 8;
-		type.kind ??= "ascii";
-
-		const length = state.view[`getUint${type.size}`](state.offset);
-
-		state.offset += type.size / 8;
-
-		const result = (type.kind === "ascii" ? ascii : utf8).decode(
+		const result = (type.kind === Kind.Ascii ? ascii : utf8).decode(
 			new Uint8Array(state.buffer, state.offset, length),
 		);
 
@@ -43,7 +52,8 @@ const TYPES = {
 
 		return result;
 	},
-	object: (state: State, type: Type.Object) => {
+	// Object
+	(state: State, type: Type.Object) => {
 		const result: Record<string, unknown> = {};
 
 		for (let i = 0; i < type.value.length; ++i) {
@@ -52,12 +62,15 @@ const TYPES = {
 
 		return result;
 	},
-	array: (state: State, type: Type.Array) => {
-		type.size ??= 8;
+	// Array
+	(state: State, type: Type.Array) => {
+		type.size ??= 1;
 
-		const length = state.view[`getUint${type.size}`](state.offset);
+		const length = state.view[`getUint${(type.size * 8) as 8 | 16}`](
+			state.offset,
+		);
 
-		state.offset += type.size / 8;
+		state.offset += type.size;
 
 		const result: unknown[] = [];
 
@@ -67,10 +80,12 @@ const TYPES = {
 
 		return result;
 	},
-	enum: (state: State, type: Type.Enum) => {
+	// Enum
+	(state: State, type: Type.Enum) => {
 		return type.value[state.view.getUint8(state.offset++)];
 	},
-	tuple: (state: State, type: Type.Tuple) => {
+	// Tuple
+	(state: State, type: Type.Tuple) => {
 		const result: unknown[] = [];
 
 		for (let i = 0; i < type.value.length; ++i) {
@@ -79,7 +94,7 @@ const TYPES = {
 
 		return result;
 	},
-};
+] satisfies Decoders;
 
 const run = (state: State, type: Type.Any) => {
 	if (type.nullable) {
@@ -91,7 +106,7 @@ const run = (state: State, type: Type.Any) => {
 		}
 	}
 
-	const result = (TYPES as any)[type.type](state, type);
+	const result = (TYPES[type.name] as Decoder)(state, type);
 
 	type.assert?.(result);
 

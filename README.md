@@ -43,10 +43,10 @@ Encodes JS data into `ArrayBuffer` based on `Type`.
 
 ```ts
 const arrayBuffer = encode({
-    type: "object",
+    name: Name.Object,
     value: [
-        { key: "name", type: "string" },
-        { key: "age", type: "int" } 
+        { key: "name", name: Name.String },
+        { key: "age", name: Name.Int } 
     ]
 }, {
     name: "Yamiteru",
@@ -60,10 +60,10 @@ Decodes `ArrayBuffer` into JS data based on `Type`.
 
 ```ts
 const data = decode({
-    type: "object",
+    name: Name.Object,
     value: [
-        { key: "name", type: "string" },
-        { key: "age", type: "int" } 
+        { key: "name", name: Name.String },
+        { key: "age", name: Name.Int } 
     ]
 }, arrayBuffer);
 ```
@@ -77,10 +77,10 @@ const {
   bytes,  // 66 
   chunks  // 9
 } = estimate({
-  type: "object",
+  name: Name.Object,
   value: [
-    { key: "email", type: "string", maxLength: 64 },
-    { key: "age", type: "int" } 
+    { key: "email", name: Name.String, maxLength: 64 },
+    { key: "age", name: Name.Int } 
   ]
 }, {
   MAX_POOL_SIZE: 256,
@@ -97,10 +97,10 @@ Once you create a `Type` you can easily infer it with `Infer`.
 
 ```ts
 const user = {
-    type: "object",
+    name: Name.Object,
     value: [
-        { key: "name", type: "string" },
-        { key: "age", type: "int" } 
+        { key: "name", name: Name.String },
+        { key: "age", name: Name.Int } 
     ]
 } as const;
 
@@ -127,7 +127,7 @@ Choose number of chunks based on your expected size of the data wisely since if 
 
 ```ts
 {
-   type: "boolean";
+   name: Name.Boolean;
 }
 ```
 
@@ -135,17 +135,17 @@ Choose number of chunks based on your expected size of the data wisely since if 
 
 | size | signed | min         | max        | bytes |
 |:-----|:-------|:------------|:-----------|:------|
-| 8    | false  | 0           | 255        | 1     |
-| 8    | true   | -127        | 128        | 1     |
-| 16   | false  | 0           | 65535      | 2     |
-| 16   | true   | -32768      | 32767      | 2     |
-| 32   | false  | 0           | 65535      | 4     |
-| 32   | true   | -2147483648 | 2147483647 | 4     |
+| 1    | false  | 0           | 255        | 1     |
+| 1    | true   | -127        | 128        | 1     |
+| 2    | false  | 0           | 65535      | 2     |
+| 2    | true   | -32768      | 32767      | 2     |
+| 4    | false  | 0           | 65535      | 4     |
+| 4    | true   | -2147483648 | 2147483647 | 4     |
 
 ```ts
 {
-   type: "int";
-   size?: 8 | 16 | 32;  // default: 8
+   name: Name.Int;
+   size?: 1 | 2 | 4;  // default: 1
    signed?: boolean;  // default: false
 }
 ```
@@ -154,28 +154,28 @@ Choose number of chunks based on your expected size of the data wisely since if 
 
 | size | min                      | max                     | bytes |
 |:-----|:-------------------------|:------------------------|:------|
-| 32   | -3.402823e+38            | 3.402823e+38            | 4     |
-| 64   | -1.7976931348623157e+308 | 1.7976931348623157e+308 | 8     |
+| 4   | -3.402823e+38            | 3.402823e+38            | 4     |
+| 8   | -1.7976931348623157e+308 | 1.7976931348623157e+308 | 8     |
 
 ```ts
 {
-   type: "float";
-   size?: 32 | 64;  // default: 32 
+   name: Name.Float;
+   size?: 4 | 8;  // default: 4
 }
 ```
 
 ### String
 
-| size | string length (bytes) |
-|:-----|:----------------------|
-| 8    | 256                   |
-| 16   | 65536                 |
+| size | max length (bytes) |
+|:-----|:-------------------|
+| 1    | 256                |
+| 2    | 65536              |
 
 ```ts
 {
-   type: "string";
-   kind?: "ascii" | "utf8" | "utf16";  // default: "ascii"
-   size?: 8 | 16;  // default: 8
+   name: Name.String;
+   kind?: Kind.Ascii | Kind.Utf8;  // default: Kind.Ascii 
+   size?: 1 | 2;  // default: 1
 }
 ```
 
@@ -183,23 +183,23 @@ Choose number of chunks based on your expected size of the data wisely since if 
 
 ```ts
 {
-   type: "object";
+   name: Name.Object;
    value: (Type.Any & Required<Type.Keyable>)[];
 }
 ```
 
 ### Array
 
-| size | array length (bytes) |
-|:-----|:---------------------|
-| 8    | 256                  |
-| 16   | 65536                |
+| size | max length (bytes) |
+|:-----|:-------------------|
+| 1    | 256                |
+| 2    | 65536              |
 
 ```ts
 {
-   type: "array";
+   name: Name.Array;
    value: Type.Any;
-   size?: 8 | 16;  // default: 8
+   size?: 1 | 2;  // default: 1
 }
 ```
 
@@ -207,7 +207,7 @@ Choose number of chunks based on your expected size of the data wisely since if 
 
 ```ts
 {
-   type: "array";
+   name: Name.Tuple;
    value: Type.Any[];
 }
 ```
@@ -216,7 +216,7 @@ Choose number of chunks based on your expected size of the data wisely since if 
 
 ```ts
 {
-   type: "enum";
+   name: Name.Enum;
    value: unknown[];
 }
 ```

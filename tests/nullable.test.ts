@@ -1,13 +1,13 @@
 import {fc, test} from "@fast-check/vitest";
 import {beforeEach, describe, expect} from "vitest";
-import {decode, encode, init, Type} from "../src";
+import {decode, encode, init, Name, Type} from "../src";
 import {UINT8} from "./shared";
 
 describe("nullable", () => {
     beforeEach(() => init());
 
     test.prop([fc.oneof(fc.integer(UINT8), fc.constant(null))])("true", (value) => {
-        const type = { type: "int", size: 8, nullable: true } satisfies Type.Int;
+        const type = { name: Name.Int, size: 1, nullable: true } satisfies Type.Int;
 
         const encoded = encode(type, value);
         const decoded = decode(type, encoded);
@@ -16,7 +16,7 @@ describe("nullable", () => {
     });
 
     test.prop([fc.integer(UINT8)])("false", (value) => {
-        const type = { type: "int", size: 8, nullable: false } satisfies Type.Int;
+        const type = { name: Name.Int, size: 1, nullable: false } satisfies Type.Int;
 
         const encoded = encode(type, value);
         const decoded = decode(type, encoded);

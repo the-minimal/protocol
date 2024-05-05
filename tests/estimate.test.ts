@@ -1,6 +1,6 @@
 import {describe, expect} from "vitest";
 import {test} from "@fast-check/vitest";
-import {estimate, Settings} from "../src";
+import {estimate, Kind, Name, Settings} from "../src";
 
 const SETTINGS = {
     MAX_POOL_SIZE: 256,
@@ -10,36 +10,36 @@ const SETTINGS = {
 
 describe("estimate", () => {
     test("boolean", () => {
-        expect(estimate({ type: "boolean" }, SETTINGS)).toEqual({
+        expect(estimate({ name: Name.Boolean }, SETTINGS)).toEqual({
             bytes: 1,
             chunks: 1
         });
     });
 
     test("int", () => {
-        expect(estimate({ type: "int", size: 8 }, SETTINGS)).toEqual({
+        expect(estimate({ name: Name.Int, size: 1 }, SETTINGS)).toEqual({
             bytes: 1,
             chunks: 1
         });
 
-        expect(estimate({ type: "int", size: 16 }, SETTINGS)).toEqual({
+        expect(estimate({ name: Name.Int, size: 2 }, SETTINGS)).toEqual({
             bytes: 2,
             chunks: 1
         });
 
-        expect(estimate({ type: "int", size: 32 }, SETTINGS)).toEqual({
+        expect(estimate({ name: Name.Int, size: 4 }, SETTINGS)).toEqual({
             bytes: 4,
             chunks: 1
         });
     });
 
     test("float", () => {
-        expect(estimate({ type: "float", size: 32 }, SETTINGS)).toEqual({
+        expect(estimate({ name: Name.Float, size: 4 }, SETTINGS)).toEqual({
             bytes: 4,
             chunks: 1
         });
 
-        expect(estimate({ type: "float", size: 64 }, SETTINGS)).toEqual({
+        expect(estimate({ name: Name.Float, size: 8 }, SETTINGS)).toEqual({
             bytes: 8,
             chunks: 1
         });
@@ -47,22 +47,22 @@ describe("estimate", () => {
 
 
     test("string", () => {
-        expect(estimate({ type: "string", kind: "ascii", size: 8 }, SETTINGS)).toEqual({
+        expect(estimate({ name: Name.String, kind: Kind.Ascii, size: 1 }, SETTINGS)).toEqual({
             bytes: 257,
             chunks: 33
         });
 
-        expect(estimate({ type: "string", kind: "ascii", size: 8, maxLength: 16 }, SETTINGS)).toEqual({
+        expect(estimate({ name: Name.String, kind: Kind.Ascii, size: 1, maxLength: 16 }, SETTINGS)).toEqual({
             bytes: 17,
             chunks: 3
         });
 
-        expect(estimate({ type: "string", kind: "utf8", size: 8 }, SETTINGS)).toEqual({
+        expect(estimate({ name: Name.String, kind: Kind.Utf8, size: 1 }, SETTINGS)).toEqual({
             bytes: 769,
             chunks: 97
         });
 
-        expect(estimate({ type: "string", kind: "utf8", size: 8, maxLength: 16 }, SETTINGS)).toEqual({
+        expect(estimate({ name: Name.String, kind: Kind.Utf8, size: 1, maxLength: 16 }, SETTINGS)).toEqual({
             bytes: 49,
             chunks: 7
         });
@@ -71,10 +71,10 @@ describe("estimate", () => {
 
     test("object", () => {
         expect(estimate({
-            type: "object",
+            name: Name.Object,
             value: [
-                {key: "email", type: "string"},
-                {key: "age", type: "int"},
+                {key: "email", name: Name.String},
+                {key: "age", name: Name.Int},
             ]
         }, SETTINGS)).toEqual({
             bytes: 258,
@@ -82,10 +82,10 @@ describe("estimate", () => {
         });
 
         expect(estimate({
-            type: "object",
+            name: Name.Object,
             value: [
-                {key: "email", type: "string", maxLength: 64 },
-                {key: "age", type: "int"},
+                {key: "email", name: Name.String, maxLength: 64 },
+                {key: "age", name: Name.Int},
             ]
         }, SETTINGS)).toEqual({
             bytes: 66,
@@ -95,16 +95,16 @@ describe("estimate", () => {
 
     test("array", () => {
         expect(estimate({
-            type: "array",
-            value: {type: "string"},
+            name: Name.Array,
+            value: {name: Name.String},
         }, SETTINGS)).toEqual({
             bytes: 65793,
             chunks: 8225
         });
 
         expect(estimate({
-            type: "array",
-            value: {type: "string"},
+            name: Name.Array,
+            value: {name: Name.String},
             maxLength: 16
         }, SETTINGS)).toEqual({
             bytes: 4113,
@@ -112,8 +112,8 @@ describe("estimate", () => {
         });
 
         expect(estimate({
-            type: "array",
-            value: {type: "string", maxLength: 16},
+            name: Name.Array,
+            value: {name: Name.String, maxLength: 16},
             maxLength: 16
         }, SETTINGS)).toEqual({
             bytes: 273,
@@ -122,7 +122,7 @@ describe("estimate", () => {
     });
 
     test("enum", () => {
-        expect(estimate({ type: "enum", value: ["ADMIN", "USER"] }, SETTINGS)).toEqual({
+        expect(estimate({ name: Name.Enum, value: ["ADMIN", "USER"] }, SETTINGS)).toEqual({
             bytes: 1,
             chunks: 1
         });
@@ -130,10 +130,10 @@ describe("estimate", () => {
 
     test("tuple", () => {
         expect(estimate({
-            type: "tuple",
+            name: Name.Tuple,
             value: [
-                {type: "string"},
-                {type: "int"},
+                {name: Name.String},
+                {name: Name.Int},
             ]
         }, SETTINGS)).toEqual({
             bytes: 258,
@@ -141,10 +141,10 @@ describe("estimate", () => {
         });
 
         expect(estimate({
-            type: "tuple",
+            name: Name.Tuple,
             value: [
-                {type: "string", maxLength: 16},
-                {type: "int"},
+                {name: Name.String, maxLength: 16},
+                {name: Name.Int},
             ]
         }, SETTINGS)).toEqual({
             bytes: 18,

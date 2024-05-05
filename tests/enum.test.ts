@@ -1,16 +1,16 @@
 import {fc, test} from "@fast-check/vitest";
 import {beforeEach, expect} from "vitest";
-import {decode, encode, init, Type} from "../src";
+import {decode, encode, init, Name} from "../src";
 
 beforeEach(() => init());
 
 test.prop([fc.oneof(fc.constant("ADMIN"), fc.constant("USER"))])("enum", (value) => {
     const type = {
-        type: "enum",
+        name: Name.Enum,
         value: ["ADMIN", "USER"]
-    } satisfies Type.Enum;
+    } as const;
 
-    const encoded = encode(type, value);
+    const encoded = encode(type, value as "ADMIN" | "USER");
     const decoded = decode(type, encoded);
 
     expect(decoded).toEqual(value);

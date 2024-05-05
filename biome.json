@@ -13,7 +13,8 @@
 				"noExplicitAny": "off"
 			},
 			"style": {
-				"noParameterAssign": "off"
+				"noParameterAssign": "off",
+				"useEnumInitializers": "off"
 			}
 		}
 	},
