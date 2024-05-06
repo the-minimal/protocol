@@ -1,6 +1,6 @@
 import {fc, test} from "@fast-check/vitest";
 import {beforeEach, expect} from "vitest";
-import {decode, encode, init, Name, Type} from "../src";
+import {decode, encode, init, Name, Type} from "../src/index.js";
 
 beforeEach(() => init());
 

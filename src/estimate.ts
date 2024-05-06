@@ -1,6 +1,12 @@
-import type { Estimate, Estimates, Settings, Type } from "./types";
-import { Kind } from "./types";
-import { SETTINGS } from "./utils";
+import { Kind } from "./enums.js";
+import type {
+	AnyType,
+	Estimate,
+	Estimates,
+	Settings,
+	Type,
+} from "./types/index.js";
+import { SETTINGS } from "./utils.js";
 
 type MaxLength = {
 	maxLength?: number;
@@ -39,9 +45,9 @@ const TYPES = [
 	(type: Type.Tuple) => type.value.reduce((acc, curr) => acc + run(curr), 0),
 ] satisfies Estimates;
 
-const run = (type: Type.Any): number => (TYPES[type.name] as Estimate)(type);
+const run = (type: AnyType): number => (TYPES[type.name] as Estimate)(type);
 
-export const estimate = (type: Type.Any, settings: Settings = SETTINGS) => {
+export const estimate = (type: any, settings: Settings = SETTINGS) => {
 	const bytes = run(type);
 
 	return {

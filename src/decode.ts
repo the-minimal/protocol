@@ -1,5 +1,12 @@
-import type { Decoder, Decoders, Infer, State, Type } from "./types";
-import { Kind } from "./types";
+import { Kind } from "./enums.js";
+import type {
+	AnyType,
+	Decoder,
+	Decoders,
+	Infer,
+	State,
+	Type,
+} from "./types/index.js";
 
 const utf8 = new TextDecoder("utf-8");
 const ascii = new TextDecoder("ascii");
@@ -96,7 +103,7 @@ const TYPES = [
 	},
 ] satisfies Decoders;
 
-const run = (state: State, type: Type.Any) => {
+const run = (state: State, type: AnyType) => {
 	if (type.nullable) {
 		const isNull = state.view.getUint8(state.offset++) === 1;
 
@@ -113,7 +120,7 @@ const run = (state: State, type: Type.Any) => {
 	return result;
 };
 
-export const decode = <$Type extends Type.Any>(
+export const decode = <$Type extends AnyType>(
 	type: $Type,
 	buffer: ArrayBuffer,
 ) => {

@@ -1,6 +1,13 @@
-import type { Encoder, Encoders, Infer, State, Type } from "./types";
-import { Kind } from "./types";
-import { alloc, free } from "./utils";
+import { Kind } from "./enums.js";
+import type {
+	AnyType,
+	Encoder,
+	Encoders,
+	Infer,
+	State,
+	Type,
+} from "./types/index.js";
+import { alloc, free } from "./utils.js";
 
 const encoder = new TextEncoder();
 
@@ -86,7 +93,7 @@ const TYPES = [
 	},
 ] satisfies Encoders;
 
-const run = (state: State, type: Type.Any, value: unknown) => {
+const run = (state: State, type: AnyType, value: unknown) => {
 	if (type.nullable) {
 		state.view.setUint8(state.offset++, +(value === null));
 
@@ -102,7 +109,7 @@ const run = (state: State, type: Type.Any, value: unknown) => {
 	(TYPES[type.name] as Encoder)(state, type, value);
 };
 
-export const encode = <const $Type extends Type.Any>(
+export const encode = <const $Type extends AnyType>(
 	type: $Type,
 	value: Infer<$Type>,
 	chunks = 1,

@@ -1,7 +1,7 @@
 import {fc, test} from "@fast-check/vitest";
 import {beforeEach, expect} from "vitest";
-import {decode, encode, init, Kind, Name} from "../src";
-import {UINT8} from "./shared";
+import {decode, encode, init, Kind, Name} from "../src/index.js";
+import {UINT8} from "./shared.js";
 
 beforeEach(() => init());
 

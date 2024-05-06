@@ -184,7 +184,7 @@ Choose number of chunks based on your expected size of the data wisely since if 
 ```ts
 {
    name: Name.Object;
-   value: (Type.Any & Required<Type.Keyable>)[];
+   value: (AnyType & Required<Type.Keyable>)[];
 }
 ```
 
@@ -198,7 +198,7 @@ Choose number of chunks based on your expected size of the data wisely since if 
 ```ts
 {
    name: Name.Array;
-   value: Type.Any;
+   value: AnyType;
    size?: 1 | 2;  // default: 1
 }
 ```
@@ -208,7 +208,7 @@ Choose number of chunks based on your expected size of the data wisely since if 
 ```ts
 {
    name: Name.Tuple;
-   value: Type.Any[];
+   value: AnyType[];
 }
 ```
 

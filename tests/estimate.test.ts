@@ -1,6 +1,6 @@
 import {describe, expect} from "vitest";
 import {test} from "@fast-check/vitest";
-import {estimate, Kind, Name, Settings} from "../src";
+import {estimate, Kind, Name, Settings} from "../src/index.js";
 
 const SETTINGS = {
     MAX_POOL_SIZE: 256,

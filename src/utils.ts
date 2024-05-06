@@ -1,4 +1,4 @@
-import type { Settings, State } from "./types";
+import type { Settings, State } from "./types/index.js";
 
 export const SETTINGS = {
 	DEFAULT_POOL_SIZE: 500_000,
