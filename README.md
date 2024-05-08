@@ -4,7 +4,7 @@ Minimal JSON-like binary schema-full protocol for JS/TS with BYO runtime data va
 
 ## Highlights
 
-- Small (< 1 KB)
+- Small (< 1.5 KB)
 - Fast
 - Runtime data validations
 - Customizable memory

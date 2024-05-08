@@ -1,3 +1,4 @@
+import { error } from "@the-minimal/error";
 import { Kind } from "./enums.js";
 import type {
 	AnyType,
@@ -10,6 +11,8 @@ import type {
 
 const utf8 = new TextDecoder("utf-8");
 const ascii = new TextDecoder("ascii");
+
+const DecodeError = error("DecodeError");
 
 const TYPES = [
 	// Boolean
@@ -124,14 +127,18 @@ export const decode = <$Type extends AnyType>(
 	type: $Type,
 	buffer: ArrayBuffer,
 ) => {
-	return run(
-		{
-			offset: 0,
-			buffer,
-			view: new DataView(buffer),
-			index: 0,
-			chunks: 0,
-		},
-		type,
-	) as Infer<$Type>;
+	try {
+		return run(
+			{
+				offset: 0,
+				buffer,
+				view: new DataView(buffer),
+				index: 0,
+				chunks: 0,
+			},
+			type,
+		) as Infer<$Type>;
+	} catch (e) {
+		DecodeError(e);
+	}
 };

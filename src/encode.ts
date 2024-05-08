@@ -1,3 +1,4 @@
+import { error } from "@the-minimal/error";
 import { Kind } from "./enums.js";
 import type {
 	AnyType,
@@ -10,6 +11,8 @@ import type {
 import { alloc, free } from "./utils.js";
 
 const encoder = new TextEncoder();
+
+const EncodeError = error("EncodeError");
 
 const TYPES = [
 	// Boolean
@@ -114,13 +117,17 @@ export const encode = <const $Type extends AnyType>(
 	value: Infer<$Type>,
 	chunks = 1,
 ) => {
-	const state = alloc(chunks);
+	try {
+		const state = alloc(chunks);
 
-	run(state, type, value);
+		run(state, type, value);
 
-	const result = state.buffer.slice(0, state.offset);
+		const result = state.buffer.slice(0, state.offset);
 
-	free(state);
+		free(state);
 
-	return result;
+		return result;
+	} catch (e) {
+		EncodeError(e);
+	}
 };

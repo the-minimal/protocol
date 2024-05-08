@@ -1,3 +1,4 @@
+import { error } from "@the-minimal/error";
 import { Kind } from "./enums.js";
 import type {
 	AnyType,
@@ -21,6 +22,8 @@ const ARRAY = {
 	1: 256,
 	2: 65_536,
 };
+
+const EstimateError = error("EstimateError");
 
 const TYPES = [
 	// Boolean
@@ -48,10 +51,14 @@ const TYPES = [
 const run = (type: AnyType): number => (TYPES[type.name] as Estimate)(type);
 
 export const estimate = (type: any, settings: Settings = SETTINGS) => {
-	const bytes = run(type);
+	try {
+		const bytes = run(type);
 
-	return {
-		bytes,
-		chunks: Math.ceil(bytes / settings.DEFAULT_CHUNK_SIZE),
-	};
+		return {
+			bytes,
+			chunks: Math.ceil(bytes / settings.DEFAULT_CHUNK_SIZE),
+		};
+	} catch (e) {
+		EstimateError(e);
+	}
 };

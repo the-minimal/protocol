@@ -69,5 +69,8 @@
   },
   "peerDependencies": {
     "typescript": "5.4.5"
+  },
+  "dependencies": {
+    "@the-minimal/error": "0.1.1"
   }
 }
