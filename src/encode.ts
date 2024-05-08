@@ -112,7 +112,7 @@ const run = (state: State, type: AnyType, value: unknown) => {
 	(TYPES[type.name] as Encoder)(state, type, value);
 };
 
-export const encode = <const $Type extends AnyType>(
+export const encode = (<const $Type extends AnyType>(
 	type: $Type,
 	value: Infer<$Type>,
 	chunks = 1,
@@ -127,7 +127,11 @@ export const encode = <const $Type extends AnyType>(
 		free(state);
 
 		return result;
-	} catch (e) {
-		EncodeError(e);
+	} catch (e: any) {
+		EncodeError(e, e?.message);
 	}
-};
+}) as <const $Type extends AnyType>(
+	type: $Type,
+	value: Infer<$Type>,
+	chunks?: number,
+) => ArrayBuffer;

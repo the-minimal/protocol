@@ -27,10 +27,24 @@ describe("assert", () => {
         const throwType = { name: Name.Int, size: 1, assert } satisfies Type.Int;
         const passType = { name: Name.Int, size: 1 } satisfies Type.Int;
 
-        expect(() => encode(throwType, value)).toThrow("zero");
+        try {
+            encode(throwType, value);
+        } catch (e: any) {
+            expect(e).toBeDefined();
+            expect(e.name).toBe("EncodeError");
+            expect(e.message).toBe("zero");
+            expect(e.cause).toBeInstanceOf(Error);
+        }
 
         const encoded = encode(passType, value);
 
-        expect(() => decode(throwType, encoded)).toThrow("zero");
+        try {
+            decode(throwType, encoded);
+        } catch (e: any) {
+            expect(e).toBeDefined();
+            expect(e.name).toBe("DecodeError");
+            expect(e.message).toBe("zero");
+            expect(e.cause).toBeInstanceOf(Error);
+        }
     });
 });

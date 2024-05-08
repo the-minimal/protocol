@@ -123,7 +123,7 @@ const run = (state: State, type: AnyType) => {
 	return result;
 };
 
-export const decode = <$Type extends AnyType>(
+export const decode = (<$Type extends AnyType>(
 	type: $Type,
 	buffer: ArrayBuffer,
 ) => {
@@ -138,7 +138,7 @@ export const decode = <$Type extends AnyType>(
 			},
 			type,
 		) as Infer<$Type>;
-	} catch (e) {
-		DecodeError(e);
+	} catch (e: any) {
+		DecodeError(e, e?.message);
 	}
-};
+}) as <$Type extends AnyType>(type: $Type, buffer: ArrayBuffer) => Infer<$Type>;
