@@ -1,4 +1,4 @@
-import type { Kind, Name } from "../enums.js";
+import type { KindValue, Name } from "../enums.js";
 
 export namespace Type {
 	export type Nullable = {
@@ -14,44 +14,44 @@ export namespace Type {
 	};
 
 	export type Boolean = New<{
-		name: Name.Boolean;
+		name: Name["Boolean"];
 	}>;
 
 	export type Int = New<{
-		name: Name.Int;
+		name: Name["Int"];
 		signed?: boolean;
 		size?: 1 | 2 | 4;
 	}>;
 
 	export type Float = New<{
-		name: Name.Float;
+		name: Name["Float"];
 		size?: 4 | 8;
 	}>;
 
 	export type String = New<{
-		name: Name.String;
-		kind?: Kind;
+		name: Name["String"];
+		kind?: KindValue;
 		size?: 1 | 2;
 	}>;
 
 	export type Object = New<{
-		name: Name.Object;
+		name: Name["Object"];
 		value: readonly (AnyType & Required<Keyable>)[];
 	}>;
 
 	export type Array = New<{
-		name: Name.Array;
+		name: Name["Array"];
 		value: AnyType;
 		size?: 1 | 2;
 	}>;
 
 	export type Enum = New<{
-		name: Name.Enum;
+		name: Name["Enum"];
 		value: readonly string[];
 	}>;
 
 	export type Tuple = New<{
-		name: Name.Tuple;
+		name: Name["Tuple"];
 		value: readonly AnyType[];
 	}>;
 }

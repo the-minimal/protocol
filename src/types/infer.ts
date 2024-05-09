@@ -1,4 +1,4 @@
-import {Name} from "../enums.js";
+import type {NameValue} from "../enums.js";
 import {AnyType, Type} from "./type.js";
 import {PrimitiveMap, PrimitiveMapKey} from "./maps.js";
 
@@ -24,7 +24,7 @@ type InferObject<$Type extends Type.Object> = {
 
 export type Infer<
     $Type,
-    $Name extends Name = InferName<$Type>,
+    $Name extends NameValue = InferName<$Type>,
     $Nullable extends boolean = InferNullable<$Type>
 > = $Type extends AnyType
     ? $Name extends PrimitiveMapKey
