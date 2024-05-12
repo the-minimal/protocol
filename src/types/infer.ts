@@ -1,8 +1,8 @@
-import type {NameValue} from "../enums.js";
-import {AnyType, Type} from "./type.js";
-import {PrimitiveMap, PrimitiveMapKey} from "./maps.js";
+import type {TypeValue} from "../enums.js";
+import type {PrimitiveMap, PrimitiveMapKey} from "./maps.js";
+import type {AnyProtocolType, Protocol} from "./type.js";
 
-type InferTuple<$Tuple extends readonly unknown[]> = $Tuple extends readonly AnyType[]
+type InferTuple<$Tuple extends readonly unknown[]> = $Tuple extends readonly AnyProtocolType[]
     ? $Tuple extends readonly [infer $Head, ...infer $Tail]
         ? [Infer<$Head>, ...InferTuple<$Tail>]
         : []
@@ -12,30 +12,30 @@ type Nullable<$Boolean extends boolean, $Type> = $Boolean extends true
     ? $Type | null
     : $Type;
 
-type InferName<$Type> = $Type extends AnyType ? $Type["name"]: never;
+type InferType<$Type> = $Type extends AnyProtocolType ? $Type["type"]: never;
 
-type InferNullable<$Type> = $Type extends Required<Type.Nullable >
+type InferNullable<$Type> = $Type extends Required<Protocol.Nullable >
     ? $Type["nullable"]
     : false;
 
-type InferObject<$Type extends Type.Object> = {
+type InferObject<$Type extends Protocol.Object> = {
     [$Prop in $Type["value"][number] as $Prop["key"]]: Infer<$Prop>;
 };
 
 export type Infer<
-    $Type,
-    $Name extends NameValue = InferName<$Type>,
-    $Nullable extends boolean = InferNullable<$Type>
-> = $Type extends AnyType
-    ? $Name extends PrimitiveMapKey
-        ? Nullable<$Nullable, PrimitiveMap[$Name]>
-        : $Type extends Type.Object
-            ? Nullable<$Nullable, InferObject<$Type>>
-            : $Type extends Type.Array
-                ? Nullable<$Nullable, Infer<$Type["value"]>[]>
-                : $Type extends Type.Enum
-                    ? Nullable<$Nullable, $Type["value"][number]>
-                    : $Type extends Type.Tuple
-                        ? Nullable<$Nullable, InferTuple<$Type["value"]>>
+    $ProtocolType,
+    $Type extends TypeValue = InferType<$ProtocolType>,
+    $Nullable extends boolean = InferNullable<$ProtocolType>
+> = $ProtocolType extends AnyProtocolType
+    ? $Type extends PrimitiveMapKey
+        ? Nullable<$Nullable, PrimitiveMap[$Type]>
+        : $ProtocolType extends Protocol.Object
+            ? Nullable<$Nullable, InferObject<$ProtocolType>>
+            : $ProtocolType extends Protocol.Array
+                ? Nullable<$Nullable, Infer<$ProtocolType["value"]>[]>
+                : $ProtocolType extends Protocol.Enum
+                    ? Nullable<$Nullable, $ProtocolType["value"][number]>
+                    : $ProtocolType extends Protocol.Tuple
+                        ? Nullable<$Nullable, InferTuple<$ProtocolType["value"]>>
                         : Nullable<$Nullable, unknown>
     : never;

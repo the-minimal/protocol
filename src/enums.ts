@@ -1,4 +1,4 @@
-export const Name = {
+export const Type = {
 	Boolean: 0,
 	Int: 1,
 	Float: 2,
@@ -9,8 +9,8 @@ export const Name = {
 	Tuple: 7,
 } as const;
 
-export type NameValue = (typeof Name)[keyof typeof Name];
-export type Name = typeof Name;
+export type TypeValue = (typeof Type)[keyof typeof Type];
+export type Type = typeof Type;
 
 export const Kind = {
 	Ascii: 0,

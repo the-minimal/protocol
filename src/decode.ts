@@ -1,12 +1,12 @@
 import { error } from "@the-minimal/error";
 import { Kind } from "./enums.js";
 import type {
-	AnyType,
+	AnyProtocolType,
 	Decoder,
 	Decoders,
 	Infer,
+	Protocol,
 	State,
-	Type,
 } from "./types/index.js";
 
 const utf8 = new TextDecoder("utf-8");
@@ -16,11 +16,11 @@ const DecodeError = error("DecodeError");
 
 const TYPES = [
 	// Boolean
-	(state: State, _: Type.Boolean) => {
+	(state: State, _: Protocol.Boolean) => {
 		return state.view.getUint8(state.offset) === 1;
 	},
 	// Int
-	(state: State, type: Type.Int) => {
+	(state: State, type: Protocol.Int) => {
 		type.size ??= 1;
 
 		const result = state.view[
@@ -32,7 +32,7 @@ const TYPES = [
 		return result;
 	},
 	// Float
-	(state: State, type: Type.Float) => {
+	(state: State, type: Protocol.Float) => {
 		type.size ??= 4;
 
 		const result = state.view[`getFloat${(type.size * 8) as 32 | 64}`](
@@ -44,7 +44,7 @@ const TYPES = [
 		return result;
 	},
 	// String
-	(state: State, type: Type.String) => {
+	(state: State, type: Protocol.String) => {
 		type.size ??= 1;
 		type.kind ??= Kind.Ascii;
 
@@ -63,7 +63,7 @@ const TYPES = [
 		return result;
 	},
 	// Object
-	(state: State, type: Type.Object) => {
+	(state: State, type: Protocol.Object) => {
 		const result: Record<string, unknown> = {};
 
 		for (let i = 0; i < type.value.length; ++i) {
@@ -73,7 +73,7 @@ const TYPES = [
 		return result;
 	},
 	// Array
-	(state: State, type: Type.Array) => {
+	(state: State, type: Protocol.Array) => {
 		type.size ??= 1;
 
 		const length = state.view[`getUint${(type.size * 8) as 8 | 16}`](
@@ -91,11 +91,11 @@ const TYPES = [
 		return result;
 	},
 	// Enum
-	(state: State, type: Type.Enum) => {
+	(state: State, type: Protocol.Enum) => {
 		return type.value[state.view.getUint8(state.offset++)];
 	},
 	// Tuple
-	(state: State, type: Type.Tuple) => {
+	(state: State, type: Protocol.Tuple) => {
 		const result: unknown[] = [];
 
 		for (let i = 0; i < type.value.length; ++i) {
@@ -106,7 +106,7 @@ const TYPES = [
 	},
 ] satisfies Decoders;
 
-const run = (state: State, type: AnyType) => {
+const run = (state: State, type: AnyProtocolType) => {
 	if (type.nullable) {
 		const isNull = state.view.getUint8(state.offset++) === 1;
 
@@ -116,14 +116,14 @@ const run = (state: State, type: AnyType) => {
 		}
 	}
 
-	const result = (TYPES[type.name] as Decoder)(state, type);
+	const result = (TYPES[type.type] as Decoder)(state, type);
 
 	type.assert?.(result);
 
 	return result;
 };
 
-export const decode = (<$Type extends AnyType>(
+export const decode = (<$Type extends AnyProtocolType>(
 	type: $Type,
 	buffer: ArrayBuffer,
 ) => {
@@ -141,4 +141,7 @@ export const decode = (<$Type extends AnyType>(
 	} catch (e: any) {
 		DecodeError(e, e?.message);
 	}
-}) as <$Type extends AnyType>(type: $Type, buffer: ArrayBuffer) => Infer<$Type>;
+}) as <$Type extends AnyProtocolType>(
+	type: $Type,
+	buffer: ArrayBuffer,
+) => Infer<$Type>;

@@ -1,12 +1,12 @@
 import { error } from "@the-minimal/error";
 import { Kind } from "./enums.js";
 import type {
-	AnyType,
+	AnyProtocolType,
 	Encoder,
 	Encoders,
 	Infer,
+	Protocol,
 	State,
-	Type,
 } from "./types/index.js";
 import { alloc, free } from "./utils.js";
 
@@ -16,11 +16,11 @@ const EncodeError = error("EncodeError");
 
 const TYPES = [
 	// Boolean
-	(state: State, _: Type.Boolean, value: boolean) => {
+	(state: State, _: Protocol.Boolean, value: boolean) => {
 		state.view.setUint8(state.offset++, +value);
 	},
 	// Int
-	(state: State, type: Type.Int, value: number) => {
+	(state: State, type: Protocol.Int, value: number) => {
 		type.size ??= 1;
 
 		state.view[
@@ -30,7 +30,7 @@ const TYPES = [
 		state.offset += type.size;
 	},
 	// Float
-	(state: State, type: Type.Float, value: number) => {
+	(state: State, type: Protocol.Float, value: number) => {
 		type.size ??= 4;
 
 		state.view[`setFloat${(type.size * 8) as 32 | 64}`](state.offset, value);
@@ -38,7 +38,7 @@ const TYPES = [
 		state.offset += type.size;
 	},
 	// String
-	(state: State, type: Type.String, value: string) => {
+	(state: State, type: Protocol.String, value: string) => {
 		type.size ??= 1;
 		type.kind ??= Kind.Ascii;
 
@@ -64,13 +64,13 @@ const TYPES = [
 		}
 	},
 	// Object
-	(state: State, type: Type.Object, value: Record<string, unknown>) => {
+	(state: State, type: Protocol.Object, value: Record<string, unknown>) => {
 		for (let i = 0; i < type.value.length; ++i) {
 			run(state, type.value[i], value[type.value[i].key]);
 		}
 	},
 	// Array
-	(state: State, type: Type.Array, value: unknown[]) => {
+	(state: State, type: Protocol.Array, value: unknown[]) => {
 		type.size ??= 1;
 
 		state.view[`setUint${(type.size * 8) as 8 | 16}`](
@@ -85,18 +85,18 @@ const TYPES = [
 		}
 	},
 	// Enum
-	(state: State, type: Type.Enum, value: string) => {
+	(state: State, type: Protocol.Enum, value: string) => {
 		state.view.setUint8(state.offset++, type.value.indexOf(value));
 	},
 	// Tuple
-	(state: State, type: Type.Tuple, value: unknown[]) => {
+	(state: State, type: Protocol.Tuple, value: unknown[]) => {
 		for (let i = 0; i < type.value.length; ++i) {
 			run(state, type.value[i], value[i]);
 		}
 	},
 ] satisfies Encoders;
 
-const run = (state: State, type: AnyType, value: unknown) => {
+const run = (state: State, type: AnyProtocolType, value: unknown) => {
 	if (type.nullable) {
 		state.view.setUint8(state.offset++, +(value === null));
 
@@ -109,10 +109,10 @@ const run = (state: State, type: AnyType, value: unknown) => {
 
 	type.assert?.(value);
 
-	(TYPES[type.name] as Encoder)(state, type, value);
+	(TYPES[type.type] as Encoder)(state, type, value);
 };
 
-export const encode = (<const $Type extends AnyType>(
+export const encode = (<const $Type extends AnyProtocolType>(
 	type: $Type,
 	value: Infer<$Type>,
 	chunks = 1,
@@ -130,7 +130,7 @@ export const encode = (<const $Type extends AnyType>(
 	} catch (e: any) {
 		EncodeError(e, e?.message);
 	}
-}) as <const $Type extends AnyType>(
+}) as <const $Type extends AnyProtocolType>(
 	type: $Type,
 	value: Infer<$Type>,
 	chunks?: number,

@@ -1,6 +1,6 @@
-import type { KindValue, Name } from "../enums.js";
+import type { KindValue, Type } from "../enums.js";
 
-export namespace Type {
+export namespace Protocol {
 	export type Nullable = {
 		nullable?: boolean;
 	};
@@ -14,59 +14,59 @@ export namespace Type {
 	};
 
 	export type Boolean = New<{
-		name: Name["Boolean"];
+		type: Type["Boolean"];
 	}>;
 
 	export type Int = New<{
-		name: Name["Int"];
+		type: Type["Int"];
 		signed?: boolean;
 		size?: 1 | 2 | 4;
 	}>;
 
 	export type Float = New<{
-		name: Name["Float"];
+		type: Type["Float"];
 		size?: 4 | 8;
 	}>;
 
 	export type String = New<{
-		name: Name["String"];
+		type: Type["String"];
 		kind?: KindValue;
 		size?: 1 | 2;
 	}>;
 
 	export type Object = New<{
-		name: Name["Object"];
-		value: readonly (AnyType & Required<Keyable>)[];
+		type: Type["Object"];
+		value: readonly (AnyProtocolType & Required<Keyable>)[];
 	}>;
 
 	export type Array = New<{
-		name: Name["Array"];
-		value: AnyType;
+		type: Type["Array"];
+		value: AnyProtocolType;
 		size?: 1 | 2;
 	}>;
 
 	export type Enum = New<{
-		name: Name["Enum"];
+		type: Type["Enum"];
 		value: readonly string[];
 	}>;
 
 	export type Tuple = New<{
-		name: Name["Tuple"];
-		value: readonly AnyType[];
+		type: Type["Tuple"];
+		value: readonly AnyProtocolType[];
 	}>;
 }
 
-export type AnyType =
-	| Type.Boolean
-	| Type.Int
-	| Type.Float
-	| Type.String
-	| Type.Object
-	| Type.Array
-	| Type.Enum
-	| Type.Tuple;
+export type AnyProtocolType =
+	| Protocol.Boolean
+	| Protocol.Int
+	| Protocol.Float
+	| Protocol.String
+	| Protocol.Object
+	| Protocol.Array
+	| Protocol.Enum
+	| Protocol.Tuple;
 
-type New<$Type extends AnyType> = $Type &
-	Type.Nullable &
-	Type.Assertable &
-	Type.Keyable;
+type New<$ProtocolType extends AnyProtocolType> = $ProtocolType &
+	Protocol.Nullable &
+	Protocol.Assertable &
+	Protocol.Keyable;

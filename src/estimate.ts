@@ -1,11 +1,11 @@
 import { error } from "@the-minimal/error";
 import { Kind } from "./enums.js";
 import type {
-	AnyType,
+	AnyProtocolType,
 	Estimate,
 	Estimates,
+	Protocol,
 	Settings,
-	Type,
 } from "./types/index.js";
 import { SETTINGS } from "./utils.js";
 
@@ -27,28 +27,31 @@ const EstimateError = error("EstimateError");
 
 const TYPES = [
 	// Boolean
-	(_: Type.Boolean) => 1,
+	(_: Protocol.Boolean) => 1,
 	// Int
-	(type: Type.Int) => type.size ?? 1,
+	(type: Protocol.Int) => type.size ?? 1,
 	// Float
-	(type: Type.Float) => type.size ?? 4,
+	(type: Protocol.Float) => type.size ?? 4,
 	// String
-	(type: Type.String & MaxLength) =>
+	(type: Protocol.String & MaxLength) =>
 		(type.size ?? 1) +
 		(type.maxLength ?? ARRAY[type.size ?? 1]) * STRING[type.kind ?? Kind.Ascii],
 	// Object
-	(type: Type.Object) => type.value.reduce((acc, curr) => acc + run(curr), 0),
+	(type: Protocol.Object) =>
+		type.value.reduce((acc, curr) => acc + run(curr), 0),
 	// Array
-	(type: Type.Array & MaxLength) =>
+	(type: Protocol.Array & MaxLength) =>
 		(type.size ?? 1) +
 		(type.maxLength ?? ARRAY[type.size ?? 1]) * run(type.value),
 	// Enum
-	(_: Type.Enum) => 1,
+	(_: Protocol.Enum) => 1,
 	// Tuple
-	(type: Type.Tuple) => type.value.reduce((acc, curr) => acc + run(curr), 0),
+	(type: Protocol.Tuple) =>
+		type.value.reduce((acc, curr) => acc + run(curr), 0),
 ] satisfies Estimates;
 
-const run = (type: AnyType): number => (TYPES[type.name] as Estimate)(type);
+const run = (type: AnyProtocolType): number =>
+	(TYPES[type.type] as Estimate)(type);
 
 export const estimate = (type: any, settings: Settings = SETTINGS) => {
 	try {
