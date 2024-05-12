@@ -18,8 +18,8 @@ Minimal JSON-like binary schema-full protocol for JS/TS with BYO runtime data va
   - `enum`
   - `tuple`
 - Support for nullable
-- Estimate payload size from `Type` with `estimate`
-- Static type inference from `Type`
+- Estimate payload size
+- Static type inference
 
 ## API
 
@@ -43,13 +43,13 @@ Encodes JS data into `ArrayBuffer` based on `Type`.
 
 ```ts
 const arrayBuffer = encode({
-    name: Name.Object,
+    type: Type.Object,
     value: [
-        { key: "name", name: Name.String },
-        { key: "age", name: Name.Int } 
+        { key: "name", type: Type.String },
+        { key: "age", type: Type.Int } 
     ]
 }, {
-    name: "Yamiteru",
+    type: "Yamiteru",
     age: 27
 });
 ```
@@ -60,10 +60,10 @@ Decodes `ArrayBuffer` into JS data based on `Type`.
 
 ```ts
 const data = decode({
-    name: Name.Object,
+    type: Type.Object,
     value: [
-        { key: "name", name: Name.String },
-        { key: "age", name: Name.Int } 
+        { key: "name", type: Type.String },
+        { key: "age", type: Type.Int } 
     ]
 }, arrayBuffer);
 ```
@@ -77,10 +77,10 @@ const {
   bytes,  // 66 
   chunks  // 9
 } = estimate({
-  name: Name.Object,
+  type: Type.Object,
   value: [
-    { key: "email", name: Name.String, maxLength: 64 },
-    { key: "age", name: Name.Int } 
+    { key: "email", type: Type.String, maxLength: 64 },
+    { key: "age", type: Type.Int } 
   ]
 }, {
   MAX_POOL_SIZE: 256,
@@ -97,15 +97,15 @@ Once you create a `Type` you can easily infer it with `Infer`.
 
 ```ts
 const user = {
-    name: Name.Object,
+    type: Type.Object,
     value: [
-        { key: "name", name: Name.String },
-        { key: "age", name: Name.Int } 
+        { key: "name", type: Type.String },
+        { key: "age", type: Type.Int } 
     ]
 } as const;
 
 // {
-//     name: string,
+//     type: string,
 //     age: number
 // }
 type User = Infer<typeof user>;
@@ -127,7 +127,7 @@ Choose number of chunks based on your expected size of the data wisely since if 
 
 ```ts
 {
-   name: Name.Boolean;
+   type: Type.Boolean;
 }
 ```
 
@@ -144,7 +144,7 @@ Choose number of chunks based on your expected size of the data wisely since if 
 
 ```ts
 {
-   name: Name.Int;
+   type: Type.Int;
    size?: 1 | 2 | 4;  // default: 1
    signed?: boolean;  // default: false
 }
@@ -159,7 +159,7 @@ Choose number of chunks based on your expected size of the data wisely since if 
 
 ```ts
 {
-   name: Name.Float;
+   type: Type.Float;
    size?: 4 | 8;  // default: 4
 }
 ```
@@ -173,7 +173,7 @@ Choose number of chunks based on your expected size of the data wisely since if 
 
 ```ts
 {
-   name: Name.String;
+   type: Type.String;
    kind?: Kind.Ascii | Kind.Utf8;  // default: Kind.Ascii 
    size?: 1 | 2;  // default: 1
 }
@@ -183,7 +183,7 @@ Choose number of chunks based on your expected size of the data wisely since if 
 
 ```ts
 {
-   name: Name.Object;
+   type: Type.Object;
    value: (AnyType & Required<Type.Keyable>)[];
 }
 ```
@@ -197,7 +197,7 @@ Choose number of chunks based on your expected size of the data wisely since if 
 
 ```ts
 {
-   name: Name.Array;
+   type: Type.Array;
    value: AnyType;
    size?: 1 | 2;  // default: 1
 }
@@ -207,7 +207,7 @@ Choose number of chunks based on your expected size of the data wisely since if 
 
 ```ts
 {
-   name: Name.Tuple;
+   type: Type.Tuple;
    value: AnyType[];
 }
 ```
@@ -216,7 +216,7 @@ Choose number of chunks based on your expected size of the data wisely since if 
 
 ```ts
 {
-   name: Name.Enum;
+   type: Type.Enum;
    value: unknown[];
 }
 ```
