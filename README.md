@@ -7,7 +7,6 @@ Minimal JSON-like binary schema-full protocol for JS/TS with BYO runtime data va
 - Small (< 1.5 KB)
 - Fast
 - Runtime data validations
-- Customizable memory
 - 36 types
   - `Boolean`
   - `UInt8`
@@ -49,20 +48,6 @@ Minimal JSON-like binary schema-full protocol for JS/TS with BYO runtime data va
 - Static type inference
 
 ## API
-
-### `init`
-
-This function sets up all underlying buffers and counters.
-
-It has to be called before `encode` is called (not needed for `decode`).
-
-```ts
-init({
-    DEFAULT_POOL_SIZE: 4_000,
-    MAX_POOL_SIZE: 16_000,
-    DEFAULT_CHUNK_SIZE: 2_000,
-});
-```
 
 ### `encode`
 
@@ -137,16 +122,6 @@ const user = {
 // }
 type User = Infer<typeof user>;
 ```
-
-## Memory
-
-Internally we use a growable `ArrayBuffer` of initial size of 512 KB and maximum size of 5 MB which we segment into 8 KB chunks.
-
-On every `encode` call we check if there is enough free chunks and if there is not then we attempt to grow the buffer.
-
-After `encode` is done it frees the chunks it used, so they can be reused in subsequent calls.
-
-Choose number of chunks based on your expected size of the data wisely since if the sub-buffer created from chunks is not big enough it will throw an overflow error.
 
 ## Types
 

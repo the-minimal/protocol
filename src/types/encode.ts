@@ -1,5 +1,15 @@
-import type { State } from "./general.js";
 import type { AnyProtocolType, Protocol } from "./type.js";
+
+export type EncodeState = {
+	id: Uint8Array;
+	buffer: ArrayBufferLike;
+	array: Uint8Array;
+	view: DataView;
+	offset: number;
+	layout_start: number;
+	layout_end: number;
+	chunks: number;
+};
 
 export type Encoders = [
 	Encoder<Protocol.Boolean, boolean>,
@@ -15,7 +25,7 @@ export type Encoders = [
 ];
 
 export type Encoder<$Type extends AnyProtocolType, $Value> = (
-	state: State,
+	state: EncodeState,
 	type: $Type,
 	value: $Value,
 ) => void;

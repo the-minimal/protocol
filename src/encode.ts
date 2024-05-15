@@ -1,10 +1,10 @@
 import { error } from "@the-minimal/error";
 import type {
 	AnyProtocolType,
+	EncodeState,
 	Encoders,
 	Infer,
 	Protocol,
-	State,
 } from "./types/index.js";
 import { alloc, free } from "./utils.js";
 
@@ -14,11 +14,11 @@ const EncodeError = error("EncodeError");
 
 const TYPES = [
 	// Boolean
-	(state: State, _: Protocol.Boolean, value: boolean) => {
+	(state: EncodeState, _: Protocol.Boolean, value: boolean) => {
 		state.view.setUint8(state.offset++, +value);
 	},
 	// Uint
-	(state: State, type: Protocol.UInt, value: number) => {
+	(state: EncodeState, type: Protocol.UInt, value: number) => {
 		state.view[`setUint${((type.type - 10) * 8) as 8 | 16 | 32}`](
 			state.offset,
 			value,
@@ -27,7 +27,7 @@ const TYPES = [
 		state.offset += type.type - 10;
 	},
 	// Int
-	(state: State, type: Protocol.Int, value: number) => {
+	(state: EncodeState, type: Protocol.Int, value: number) => {
 		state.view[`setInt${((type.type - 20) * 8) as 8 | 16 | 32}`](
 			state.offset,
 			value,
@@ -35,7 +35,7 @@ const TYPES = [
 		state.offset += type.type - 20;
 	},
 	// Float
-	(state: State, type: Protocol.Float, value: number) => {
+	(state: EncodeState, type: Protocol.Float, value: number) => {
 		state.view[`setFloat${((type.type - 30) * 8) as 32 | 64}`](
 			state.offset,
 			value,
@@ -43,7 +43,7 @@ const TYPES = [
 		state.offset += type.type - 30;
 	},
 	// Ascii
-	(state: State, type: Protocol.Ascii, value: string) => {
+	(state: EncodeState, type: Protocol.Ascii, value: string) => {
 		state.view[`setUint${((type.type - 40) * 8) as 8 | 16}`](
 			state.offset,
 			value.length,
@@ -56,7 +56,7 @@ const TYPES = [
 		}
 	},
 	// Unicode
-	(state: State, type: Protocol.Unicode, value: string) => {
+	(state: EncodeState, type: Protocol.Unicode, value: string) => {
 		const written = encoder.encodeInto(
 			value,
 			new Uint8Array(state.buffer, state.offset + (type.type - 50)),
@@ -69,13 +69,17 @@ const TYPES = [
 		state.offset += type.type - 50 + written;
 	},
 	// Object
-	(state: State, type: Protocol.Object, value: Record<string, unknown>) => {
+	(
+		state: EncodeState,
+		type: Protocol.Object,
+		value: Record<string, unknown>,
+	) => {
 		for (let i = 0; i < type.value.length; ++i) {
 			run(state, type.value[i], value[type.value[i].key]);
 		}
 	},
 	// Array
-	(state: State, type: Protocol.Array, value: unknown[]) => {
+	(state: EncodeState, type: Protocol.Array, value: unknown[]) => {
 		state.view[`setUint${((type.type - 70) * 8) as 8 | 16}`](
 			state.offset,
 			value.length,
@@ -88,18 +92,18 @@ const TYPES = [
 		}
 	},
 	// Enum
-	(state: State, type: Protocol.Enum, value: unknown) => {
+	(state: EncodeState, type: Protocol.Enum, value: unknown) => {
 		state.view.setUint8(state.offset++, type.value.indexOf(value));
 	},
 	// Tuple
-	(state: State, type: Protocol.Tuple, value: unknown[]) => {
+	(state: EncodeState, type: Protocol.Tuple, value: unknown[]) => {
 		for (let i = 0; i < type.value.length; ++i) {
 			run(state, type.value[i], value[i]);
 		}
 	},
 ] satisfies Encoders;
 
-const run = (state: State, type: AnyProtocolType, value: unknown) => {
+const run = (state: EncodeState, type: AnyProtocolType, value: unknown) => {
 	// TODO: get rid of this heresy
 	const typeCopy = { ...type };
 

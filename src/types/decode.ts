@@ -1,5 +1,10 @@
-import type { State } from "./general.js";
 import type { AnyProtocolType, Protocol } from "./type.js";
+
+export type DecodeState = {
+	buffer: ArrayBufferLike;
+	view: DataView;
+	offset: number;
+};
 
 export type Decoders = [
 	Decoder<Protocol.Boolean, boolean>,
@@ -15,6 +20,6 @@ export type Decoders = [
 ];
 
 export type Decoder<$Type extends AnyProtocolType, $Value> = (
-	state: State,
+	state: DecodeState,
 	type: $Type,
 ) => $Value;

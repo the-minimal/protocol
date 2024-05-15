@@ -1,80 +1,62 @@
-import type { Settings, State } from "./types/index.js";
+import type { State } from "./types/index.js";
 
-export const SETTINGS = {
-	DEFAULT_POOL_SIZE: 500_000,
-	MAX_POOL_SIZE: 5_000_000,
-	DEFAULT_CHUNK_SIZE: 8_000,
-} satisfies Settings;
+const POOL_SIZE = 128_000;
+const CHUNK_SIZE = 1_000;
+const LAYOUT_SIZE = POOL_SIZE / CHUNK_SIZE;
 
-let MAIN_BUFFER: ArrayBuffer;
-let ALLOCATED_BUFFER: ArrayBuffer;
-let ALLOCATED_ARRAY: Uint8Array;
-let FREE_CHUNKS: number;
-
-export const init = (settings: Partial<Settings> = {}) => {
-	Object.assign(SETTINGS, settings);
-
-	MAIN_BUFFER = new ArrayBuffer(SETTINGS.DEFAULT_POOL_SIZE, {
-		maxByteLength: SETTINGS.MAX_POOL_SIZE,
-	});
-
-	ALLOCATED_BUFFER = new ArrayBuffer(
-		SETTINGS.DEFAULT_POOL_SIZE / SETTINGS.DEFAULT_CHUNK_SIZE,
-		{ maxByteLength: SETTINGS.MAX_POOL_SIZE / SETTINGS.DEFAULT_CHUNK_SIZE },
-	);
-
-	ALLOCATED_ARRAY = new Uint8Array(ALLOCATED_BUFFER);
-
-	FREE_CHUNKS = SETTINGS.DEFAULT_POOL_SIZE / SETTINGS.DEFAULT_CHUNK_SIZE;
-};
+let POOL_BUFFER = new Uint8Array(POOL_SIZE);
+let POOL_LAYOUT = new Uint8Array(LAYOUT_SIZE);
+let FREE_CHUNKS = LAYOUT_SIZE;
 
 export const alloc = (chunks: number): State => {
 	if (FREE_CHUNKS < chunks) {
-		grow();
+		refill();
 	}
 
-	let index = 0;
-	let counter = 0;
+	let count = 0;
 
-	for (let i = 0; i < ALLOCATED_ARRAY.length; ++i) {
-		if (ALLOCATED_ARRAY[i] === 0) {
-			counter++;
+	for (let i = 0; i < LAYOUT_SIZE; ++i) {
+		if (POOL_LAYOUT[i] === 0) {
+			if (count++ === chunks) {
+				const layout_start = i - chunks;
+				const layout_end = i;
+				const offset = layout_start * CHUNK_SIZE;
+
+				POOL_LAYOUT.fill(1, layout_start, layout_end);
+				FREE_CHUNKS -= chunks;
+
+				const array = POOL_BUFFER.subarray(offset, layout_end * CHUNK_SIZE);
+
+				return {
+					id: POOL_BUFFER,
+					buffer: array.buffer,
+					array,
+					view: new DataView(array.buffer),
+					offset,
+					layout_start,
+					layout_end,
+					chunks,
+				};
+			}
 		} else {
-			counter = 0;
-		}
-
-		if (counter === chunks) {
-			index = i;
-			break;
+			count = 0;
 		}
 	}
 
-	for (let i = 0; i < chunks; ++i) {
-		ALLOCATED_ARRAY[index + i] = 1;
-	}
+	refill();
 
-	const buffer = MAIN_BUFFER.slice(
-		index * SETTINGS.DEFAULT_CHUNK_SIZE,
-		index * SETTINGS.DEFAULT_CHUNK_SIZE + chunks * SETTINGS.DEFAULT_CHUNK_SIZE,
-	);
+	return alloc(chunks);
+};
 
-	return {
-		index,
-		chunks,
-		buffer,
-		view: new DataView(buffer),
-		offset: 0,
-	};
+const refill = () => {
+	POOL_BUFFER = new Uint8Array(POOL_SIZE);
+	POOL_LAYOUT = new Uint8Array(LAYOUT_SIZE);
+	FREE_CHUNKS = LAYOUT_SIZE;
 };
 
 export const free = (state: State) => {
-	for (let i = 0; i < state.chunks; ++i) {
-		ALLOCATED_ARRAY[state.index + i] = 0;
+	if (POOL_BUFFER === state.id) {
+		POOL_LAYOUT.fill(0, state.layout_start, state.layout_end);
+		FREE_CHUNKS += state.chunks;
 	}
-};
-
-export const grow = () => {
-	MAIN_BUFFER.resize(MAIN_BUFFER.byteLength * 2);
-	ALLOCATED_BUFFER.resize(ALLOCATED_BUFFER.byteLength * 2);
-	FREE_CHUNKS = ALLOCATED_BUFFER.byteLength * 2 - FREE_CHUNKS;
 };
