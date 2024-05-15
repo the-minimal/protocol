@@ -6,7 +6,7 @@ describe("float", () => {
     beforeEach(() => init());
 
     test.prop([fc.float()])("float32", (value) => {
-        const type = { type: Type.Float, size: 4 } as const;
+        const type = { type: Type.Float32 } as const;
 
         const encoded = encode(type, value);
         const decoded = decode(type, encoded);
@@ -15,7 +15,7 @@ describe("float", () => {
     });
 
     test.prop([fc.integer()])("float64", (value) => {
-        const type = { type: Type.Float, size: 8 } as const;
+        const type = { type: Type.Float64 } as const;
 
         const encoded = encode(type, value);
         const decoded = decode(type, encoded);

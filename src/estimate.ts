@@ -1,5 +1,4 @@
 import { error } from "@the-minimal/error";
-import { Kind } from "./enums.js";
 import type {
 	AnyProtocolType,
 	Estimate,

@@ -1,9 +1,16 @@
-import type { TypeValue } from "../enums.js";
-import type { NameTypeMap } from "./maps.js";
-import type { AnyProtocolType } from "./type.js";
+import type { AnyProtocolType, Protocol } from "./type.js";
 
-export type Estimates = {
-	[$Key in TypeValue]: (type: NameTypeMap[$Key]) => number;
-};
+export type Estimates = [
+	Estimate<Protocol.Boolean>,
+	Estimate<Protocol.UInt>,
+	Estimate<Protocol.Int>,
+	Estimate<Protocol.Float>,
+	Estimate<Protocol.Ascii>,
+	Estimate<Protocol.Unicode>,
+	Estimate<Protocol.Object>,
+	Estimate<Protocol.Array>,
+	Estimate<Protocol.Enum>,
+	Estimate<Protocol.Tuple>,
+];
 
-export type Estimate = (type: AnyProtocolType) => number;
+export type Estimate<$Type extends AnyProtocolType> = (type: $Type) => number;

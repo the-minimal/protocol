@@ -8,9 +8,8 @@ describe("array", () => {
 
     test.prop([fc.array(fc.integer(UINT8), { maxLength: UINT8.max })])("8", (value) => {
         const type = {
-            type: Type.Array,
-            size: 1,
-            value: {type: Type.Int, size: 1}
+            type: Type.Array8,
+            value: { type: Type.UInt8 }
         } as const;
 
         const encoded = encode(type, value);
@@ -21,9 +20,8 @@ describe("array", () => {
 
     test.prop([fc.array(fc.integer(UINT8), { maxLength: UINT16.max })])("8", (value) => {
         const type = {
-            type: Type.Array,
-            size: 2,
-            value: {type: Type.Int, size: 1}
+            type: Type.Array16,
+            value: { type: Type.UInt8 }
         } as const;
 
         const encoded = encode(type, value);

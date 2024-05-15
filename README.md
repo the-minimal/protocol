@@ -8,16 +8,43 @@ Minimal JSON-like binary schema-full protocol for JS/TS with BYO runtime data va
 - Fast
 - Runtime data validations
 - Customizable memory
-- 8 types
-  - `boolean`
-  - `int`
-  - `float`
-  - `string`
-  - `object`
-  - `array`
-  - `enum`
-  - `tuple`
-- Support for nullable
+- 36 types
+  - `Boolean`
+  - `UInt8`
+  - `UInt16`
+  - `UInt32`
+  - `Int8`
+  - `Int16`
+  - `Int32`
+  - `Float32`
+  - `Float64`
+  - `Ascii8`
+  - `Ascii16`
+  - `Unicode8`
+  - `Unicode16`
+  - `Object`
+  - `Array8`
+  - `Array16`
+  - `Enum`
+  - `Tuple`
+  - `NullableBoolean`
+  - `NullableUInt8`
+  - `NullableUInt16`
+  - `NullableUInt32`
+  - `NullableInt8`
+  - `NullableInt16`
+  - `NullableInt32`
+  - `NullableFloat32`
+  - `NullableFloat64`
+  - `NullableAscii8`
+  - `NullableAscii16`
+  - `NullableUnicode8`
+  - `NullableUnicode16`
+  - `NullableObject`
+  - `NullableArray8`
+  - `NullableArray16`
+  - `NullableEnum`
+  - `NullableTuple`
 - Estimate payload size
 - Static type inference
 
@@ -45,8 +72,8 @@ Encodes JS data into `ArrayBuffer` based on `Type`.
 const arrayBuffer = encode({
     type: Type.Object,
     value: [
-        { key: "name", type: Type.String },
-        { key: "age", type: Type.Int } 
+        { key: "name", type: Type.Ascii },
+        { key: "age", type: Type.UInt8 } 
     ]
 }, {
     type: "Yamiteru",
@@ -62,8 +89,8 @@ Decodes `ArrayBuffer` into JS data based on `Type`.
 const data = decode({
     type: Type.Object,
     value: [
-        { key: "name", type: Type.String },
-        { key: "age", type: Type.Int } 
+        { key: "name", type: Type.Ascii },
+        { key: "age", type: Type.UInt8 } 
     ]
 }, arrayBuffer);
 ```
@@ -77,11 +104,11 @@ const {
   bytes,  // 66 
   chunks  // 9
 } = estimate({
-  type: Type.Object,
-  value: [
-    { key: "email", type: Type.String, maxLength: 64 },
-    { key: "age", type: Type.Int } 
-  ]
+    type: Type.Object,
+    value: [
+        { key: "name", type: Type.Ascii, maxLength: 64 },
+        { key: "age", type: Type.UInt8 } 
+    ]
 }, {
   MAX_POOL_SIZE: 256,
   DEFAULT_POOL_SIZE: 16,
@@ -99,8 +126,8 @@ Once you create a `Type` you can easily infer it with `Infer`.
 const user = {
     type: Type.Object,
     value: [
-        { key: "name", type: Type.String },
-        { key: "age", type: Type.Int } 
+        { key: "name", type: Type.Ascii },
+        { key: "age", type: Type.UInt8 } 
     ]
 } as const;
 
@@ -127,55 +154,74 @@ Choose number of chunks based on your expected size of the data wisely since if 
 
 ```ts
 {
-   type: Type.Boolean;
+    type: 
+        | Type.Boolean 
+        | Type.NullableBoolean;
+}
+```
+
+### UInt
+
+```ts
+{
+    type: 
+        | Type.UInt8
+		| Type.UInt16
+		| Type.UInt32
+		| Type.NullableUInt8
+		| Type.NullableUInt16
+		| Type.NullableUInt32;
 }
 ```
 
 ### Int
 
-| size | signed | min         | max        | bytes |
-|:-----|:-------|:------------|:-----------|:------|
-| 1    | false  | 0           | 255        | 1     |
-| 1    | true   | -127        | 128        | 1     |
-| 2    | false  | 0           | 65535      | 2     |
-| 2    | true   | -32768      | 32767      | 2     |
-| 4    | false  | 0           | 65535      | 4     |
-| 4    | true   | -2147483648 | 2147483647 | 4     |
-
 ```ts
 {
-   type: Type.Int;
-   size?: 1 | 2 | 4;  // default: 1
-   signed?: boolean;  // default: false
+    type: 
+        | Type.Int8
+		| Type.Int16
+		| Type.Int32
+		| Type.NullableInt8
+		| Type.NullableInt16
+		| Type.NullableInt32;
 }
 ```
 
 ### Float
 
-| size | min                      | max                     | bytes |
-|:-----|:-------------------------|:------------------------|:------|
-| 4   | -3.402823e+38            | 3.402823e+38            | 4     |
-| 8   | -1.7976931348623157e+308 | 1.7976931348623157e+308 | 8     |
 
 ```ts
 {
-   type: Type.Float;
-   size?: 4 | 8;  // default: 4
+    type: 
+        | Type.Float32
+        | Type.Float64
+        | Type.NullableFloat32
+        | Type.NullableFloat64;
 }
 ```
 
-### String
-
-| size | max length (bytes) |
-|:-----|:-------------------|
-| 1    | 256                |
-| 2    | 65536              |
+### Ascii
 
 ```ts
 {
-   type: Type.String;
-   kind?: Kind.Ascii | Kind.Utf8;  // default: Kind.Ascii 
-   size?: 1 | 2;  // default: 1
+    type: 
+        | Type.Ascii8
+        | Type.Ascii16
+        | Type.NullableAscii8
+        | Type.NullableAscii16;
+}
+```
+
+### Unicode
+
+```ts
+{
+    type: 
+        | Type.Unicode8
+        | Type.Unicode16
+        | Type.NullableUnicode8
+        | Type.NullableUnicode16;
 }
 ```
 
@@ -183,23 +229,23 @@ Choose number of chunks based on your expected size of the data wisely since if 
 
 ```ts
 {
-   type: Type.Object;
-   value: (AnyType & Required<Type.Keyable>)[];
+    type: 
+        | Type.Object
+        | Type.NullableObject;
+    value: (AnyType & Required<Type.Keyable>)[];
 }
 ```
 
 ### Array
 
-| size | max length (bytes) |
-|:-----|:-------------------|
-| 1    | 256                |
-| 2    | 65536              |
-
 ```ts
 {
-   type: Type.Array;
-   value: AnyType;
-   size?: 1 | 2;  // default: 1
+    type: 
+        | Type.Array8
+        | Type.Array16
+        | Type.NullableArray8
+        | Type.NullableArray16;
+    value: AnyType;
 }
 ```
 
@@ -207,8 +253,10 @@ Choose number of chunks based on your expected size of the data wisely since if 
 
 ```ts
 {
-   type: Type.Tuple;
-   value: AnyType[];
+    type: 
+        | Type.Tuple
+        | Type.NullableTuple;
+    value: AnyType[];
 }
 ```
 
@@ -216,8 +264,10 @@ Choose number of chunks based on your expected size of the data wisely since if 
 
 ```ts
 {
-   type: Type.Enum;
-   value: unknown[];
+    type: 
+        | Type.Enum
+        | Type.NullableEnum;
+    value: unknown[];
 }
 ```
 
@@ -228,16 +278,6 @@ Used in `Object` for property names.
 ```ts
 {
    key?: string;
-}
-```
-
-## Nullable
-
-Any type can be made nullable by adding `nullable` property to it.
-
-```ts
-{
-   nullable?: boolean;
 }
 ```
 

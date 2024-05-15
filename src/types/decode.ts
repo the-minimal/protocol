@@ -1,10 +1,20 @@
-import type { TypeValue } from "../enums.js";
 import type { State } from "./general.js";
-import type { NameTypeMap } from "./maps.js";
-import type { AnyProtocolType } from "./type.js";
+import type { AnyProtocolType, Protocol } from "./type.js";
 
-export type Decoders = {
-	[$Key in TypeValue]: (state: State, type: NameTypeMap[$Key]) => unknown;
-};
+export type Decoders = [
+	Decoder<Protocol.Boolean, boolean>,
+	Decoder<Protocol.UInt, number>,
+	Decoder<Protocol.Int, number>,
+	Decoder<Protocol.Float, number>,
+	Decoder<Protocol.Ascii, string>,
+	Decoder<Protocol.Unicode, string>,
+	Decoder<Protocol.Object, Record<string, unknown>>,
+	Decoder<Protocol.Array, unknown[]>,
+	Decoder<Protocol.Enum, unknown>,
+	Decoder<Protocol.Tuple, unknown[]>,
+];
 
-export type Decoder = (state: State, type: AnyProtocolType) => unknown;
+export type Decoder<$Type extends AnyProtocolType, $Value> = (
+	state: State,
+	type: $Type,
+) => $Value;

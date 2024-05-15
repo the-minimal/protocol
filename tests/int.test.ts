@@ -7,7 +7,7 @@ describe("int", () => {
     beforeEach(() => init());
 
     test.prop([fc.integer(UINT8)])("uint8", (value) => {
-        const type = { type: Type.Int, size: 1, signed: false } as const;
+        const type = { type: Type.UInt8 } as const;
 
         const encoded = encode(type, value);
         const decoded = decode(type, encoded);
@@ -16,7 +16,7 @@ describe("int", () => {
     });
 
     test.prop([fc.integer(UINT16)])("uint16", (value) => {
-        const type = { type: Type.Int, size: 2, signed: false } as const;
+        const type = { type: Type.UInt16 } as const;
 
         const encoded = encode(type, value);
         const decoded = decode(type, encoded);
@@ -25,7 +25,7 @@ describe("int", () => {
     });
 
     test.prop([fc.integer(UINT32)])("uint32", (value) => {
-        const type = { type: Type.Int, size: 4, signed: false } as const;
+        const type = { type: Type.UInt32 } as const;
 
         const encoded = encode(type, value);
         const decoded = decode(type, encoded);
@@ -34,7 +34,7 @@ describe("int", () => {
     });
 
     test.prop([fc.integer(INT8)])("int8", (value) => {
-        const type = { type: Type.Int, size: 1, signed: true } as const;
+        const type = { type: Type.Int8} as const;
 
         const encoded = encode(type, value);
         const decoded = decode(type, encoded);
@@ -43,7 +43,7 @@ describe("int", () => {
     });
 
     test.prop([fc.integer(INT16)])("int16", (value) => {
-        const type = { type: Type.Int, size: 2, signed: true } as const;
+        const type = { type: Type.Int16} as const;
 
         const encoded = encode(type, value);
         const decoded = decode(type, encoded);
@@ -52,7 +52,7 @@ describe("int", () => {
     });
 
     test.prop([fc.integer(INT32)])("int32", (value) => {
-        const type = { type: Type.Int, size: 4, signed: true } as const;
+        const type = { type: Type.Int32} as const;
 
         const encoded = encode(type, value);
         const decoded = decode(type, encoded);

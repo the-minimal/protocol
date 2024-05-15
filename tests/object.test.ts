@@ -1,6 +1,6 @@
 import {fc, test} from "@fast-check/vitest";
 import {beforeEach, expect} from "vitest";
-import {decode, encode, init, Kind, Type} from "../src/index.js";
+import {decode, encode, init, Type} from "../src/index.js";
 
 beforeEach(() => init());
 
@@ -11,8 +11,8 @@ test.prop([fc.record({
     const type = {
         type: Type.Object,
         value: [
-            {key: "name", type: Type.String, kind: Kind.Ascii, size: 1},
-            {key: "age", type: Type.Int, size: 1},
+            {key: "name", type: Type.Ascii8 },
+            {key: "age", type: Type.UInt8},
         ]
     } as const;
 
