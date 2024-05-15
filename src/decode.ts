@@ -14,46 +14,46 @@ const DecodeError = error("DecodeError");
 
 const TYPES = [
 	// Boolean
-	(state: DecodeState) => {
+	(state) => {
 		return state.view.getUint8(state.offset) === 1;
 	},
 	// UInt
-	(state: DecodeState, type: Protocol.UInt) => {
-		const result = state.view[
-			`getUint${((type.type - 10) * 8) as 8 | 16 | 32}`
-		](state.offset);
+	(state, _, index) => {
+		const result = state.view[`getUint${((index - 10) * 8) as 8 | 16 | 32}`](
+			state.offset,
+		);
 
-		state.offset += type.type - 10;
+		state.offset += index - 10;
 
 		return result;
 	},
 	// Int
-	(state: DecodeState, type: Protocol.Int) => {
-		const result = state.view[`getInt${((type.type - 20) * 8) as 8 | 16 | 32}`](
+	(state, _, index) => {
+		const result = state.view[`getInt${((index - 20) * 8) as 8 | 16 | 32}`](
 			state.offset,
 		);
 
-		state.offset += type.type - 20;
+		state.offset += index - 20;
 
 		return result;
 	},
 	// Float
-	(state: DecodeState, type: Protocol.Float) => {
-		const result = state.view[`getFloat${((type.type - 30) * 8) as 32 | 64}`](
+	(state, _, index) => {
+		const result = state.view[`getFloat${((index - 30) * 8) as 32 | 64}`](
 			state.offset,
 		);
 
-		state.offset += type.type - 30;
+		state.offset += index - 30;
 
 		return result;
 	},
 	// Ascii
-	(state: DecodeState, type: Protocol.Ascii) => {
-		const length = state.view[`getUint${((type.type - 40) * 8) as 8 | 16}`](
+	(state, _, index) => {
+		const length = state.view[`getUint${((index - 40) * 8) as 8 | 16}`](
 			state.offset,
 		);
 
-		state.offset += type.type - 40;
+		state.offset += index - 40;
 
 		const result = ascii.decode(
 			new Uint8Array(state.buffer, state.offset, length),
@@ -64,12 +64,12 @@ const TYPES = [
 		return result;
 	},
 	// Unicode
-	(state: DecodeState, type: Protocol.Unicode) => {
-		const length = state.view[`getUint${((type.type - 50) * 8) as 8 | 16}`](
+	(state, _, index) => {
+		const length = state.view[`getUint${((index - 50) * 8) as 8 | 16}`](
 			state.offset,
 		);
 
-		state.offset += type.type - 50;
+		state.offset += index - 50;
 
 		const result = utf8.decode(
 			new Uint8Array(state.buffer, state.offset, length),
@@ -80,7 +80,7 @@ const TYPES = [
 		return result;
 	},
 	// Object
-	(state: DecodeState, type: Protocol.Object) => {
+	(state, type) => {
 		const result: Record<string, unknown> = {};
 
 		for (let i = 0; i < type.value.length; ++i) {
@@ -90,12 +90,12 @@ const TYPES = [
 		return result;
 	},
 	// Array
-	(state: DecodeState, type: Protocol.Array) => {
-		const length = state.view[`getUint${((type.type - 70) * 8) as 8 | 16}`](
+	(state, type, index) => {
+		const length = state.view[`getUint${((index - 70) * 8) as 8 | 16}`](
 			state.offset,
 		);
 
-		state.offset += type.type - 70;
+		state.offset += index - 70;
 
 		const result: unknown[] = [];
 
@@ -106,11 +106,11 @@ const TYPES = [
 		return result;
 	},
 	// Enum
-	(state: DecodeState, type: Protocol.Enum) => {
+	(state, type) => {
 		return type.value[state.view.getUint8(state.offset++)];
 	},
 	// Tuple
-	(state: DecodeState, type: Protocol.Tuple) => {
+	(state, type) => {
 		const result: unknown[] = [];
 
 		for (let i = 0; i < type.value.length; ++i) {
@@ -122,11 +122,10 @@ const TYPES = [
 ] satisfies Decoders;
 
 const run = (state: DecodeState, type: AnyProtocolType) => {
-	// TODO: get rid of this heresy
-	const typeCopy = { ...type };
+	let index = type.type;
 
-	if (((typeCopy.type - 100) >>> 31) ^ 1) {
-		typeCopy.type -= 100;
+	if (((index - 100) >>> 31) ^ 1) {
+		index -= 100;
 
 		if (state.view.getUint8(state.offset++) === 1) {
 			state.offset++;
@@ -134,7 +133,7 @@ const run = (state: DecodeState, type: AnyProtocolType) => {
 		}
 	}
 
-	const result = (TYPES[(typeCopy.type / 10) | 0] as any)(state, typeCopy);
+	const result = (TYPES[(index / 10) | 0] as any)(state, type, index);
 
 	type.assert?.(result);
 

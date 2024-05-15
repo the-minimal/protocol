@@ -4,7 +4,6 @@ import type {
 	EncodeState,
 	Encoders,
 	Infer,
-	Protocol,
 } from "./types/index.js";
 import { alloc, free } from "./utils.js";
 
@@ -14,89 +13,79 @@ const EncodeError = error("EncodeError");
 
 const TYPES = [
 	// Boolean
-	(state: EncodeState, _: Protocol.Boolean, value: boolean) => {
+	(state, _1, _2, value) => {
 		state.view.setUint8(state.offset++, +value);
 	},
 	// Uint
-	(state: EncodeState, type: Protocol.UInt, value: number) => {
-		state.view[`setUint${((type.type - 10) * 8) as 8 | 16 | 32}`](
+	(state, _, index, value) => {
+		state.view[`setUint${((index - 10) * 8) as 8 | 16 | 32}`](
 			state.offset,
 			value,
 		);
 
-		state.offset += type.type - 10;
+		state.offset += index - 10;
 	},
 	// Int
-	(state: EncodeState, type: Protocol.Int, value: number) => {
-		state.view[`setInt${((type.type - 20) * 8) as 8 | 16 | 32}`](
+	(state, _, index, value) => {
+		state.view[`setInt${((index - 20) * 8) as 8 | 16 | 32}`](
 			state.offset,
 			value,
 		);
-		state.offset += type.type - 20;
+		state.offset += index - 20;
 	},
 	// Float
-	(state: EncodeState, type: Protocol.Float, value: number) => {
-		state.view[`setFloat${((type.type - 30) * 8) as 32 | 64}`](
-			state.offset,
-			value,
-		);
-		state.offset += type.type - 30;
+	(state, _, index, value) => {
+		state.view[`setFloat${((index - 30) * 8) as 32 | 64}`](state.offset, value);
+		state.offset += index - 30;
 	},
 	// Ascii
-	(state: EncodeState, type: Protocol.Ascii, value: string) => {
-		state.view[`setUint${((type.type - 40) * 8) as 8 | 16}`](
+	(state, _, index, value) => {
+		state.view[`setUint${((index - 40) * 8) as 8 | 16}`](
 			state.offset,
 			value.length,
 		);
 
-		state.offset += type.type - 40;
+		state.offset += index - 40;
 
 		for (let i = 0; i < value.length; ++i) {
 			state.view.setUint8(state.offset++, value.charCodeAt(i));
 		}
 	},
 	// Unicode
-	(state: EncodeState, type: Protocol.Unicode, value: string) => {
+	(state, _, index, value) => {
 		const written = encoder.encodeInto(
 			value,
-			new Uint8Array(state.buffer, state.offset + (type.type - 50)),
+			new Uint8Array(state.buffer, state.offset + (index - 50)),
 		).written;
 
-		state.view[`setUint${((type.type - 50) * 8) as 8 | 16}`](
-			state.offset,
-			written,
-		);
-		state.offset += type.type - 50 + written;
+		state.view[`setUint${((index - 50) * 8) as 8 | 16}`](state.offset, written);
+		state.offset += index - 50 + written;
 	},
 	// Object
-	(
-		state: EncodeState,
-		type: Protocol.Object,
-		value: Record<string, unknown>,
-	) => {
+	(state, type, _, value) => {
 		for (let i = 0; i < type.value.length; ++i) {
 			run(state, type.value[i], value[type.value[i].key]);
 		}
 	},
 	// Array
-	(state: EncodeState, type: Protocol.Array, value: unknown[]) => {
-		state.view[`setUint${((type.type - 70) * 8) as 8 | 16}`](
+	(state, type, index, value) => {
+		state.view[`setUint${((index - 70) * 8) as 8 | 16}`](
 			state.offset,
 			value.length,
 		);
 
-		state.offset += type.type - 70;
+		state.offset += index - 70;
 
 		for (let i = 0; i < value.length; ++i) {
 			run(state, type.value, value[i]);
 		}
 	},
 	// Enum
-	(state: EncodeState, type: Protocol.Enum, value: unknown) => {
+	(state, type, _, value) => {
 		state.view.setUint8(state.offset++, type.value.indexOf(value));
 	},
 	// Tuple
-	(state: EncodeState, type: Protocol.Tuple, value: unknown[]) => {
+	(state, type, _, value) => {
 		for (let i = 0; i < type.value.length; ++i) {
 			run(state, type.value[i], value[i]);
 		}
@@ -104,11 +93,11 @@ const TYPES = [
 ] satisfies Encoders;
 
 const run = (state: EncodeState, type: AnyProtocolType, value: unknown) => {
-	// TODO: get rid of this heresy
-	const typeCopy = { ...type };
+	let index = type.type;
 
-	if (((typeCopy.type - 100) >>> 31) ^ 1) {
-		typeCopy.type -= 100;
+	if (((index - 100) >>> 31) ^ 1) {
+		index -= 100;
+
 		state.view.setUint8(state.offset++, +(value === null));
 
 		if (value === null) {
@@ -118,9 +107,9 @@ const run = (state: EncodeState, type: AnyProtocolType, value: unknown) => {
 		}
 	}
 
-	typeCopy.assert?.(value);
+	type.assert?.(value);
 
-	(TYPES[(typeCopy.type / 10) | 0] as any)(state, typeCopy, value);
+	(TYPES[(index / 10) | 0] as any)(state, type, index, value);
 };
 
 export const encode = (<const $Type extends AnyProtocolType>(

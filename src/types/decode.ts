@@ -22,4 +22,5 @@ export type Decoders = [
 export type Decoder<$Type extends AnyProtocolType, $Value> = (
 	state: DecodeState,
 	type: $Type,
+	index: number,
 ) => $Value;

@@ -27,5 +27,6 @@ export type Encoders = [
 export type Encoder<$Type extends AnyProtocolType, $Value> = (
 	state: EncodeState,
 	type: $Type,
+	index: number,
 	value: $Value,
 ) => void;

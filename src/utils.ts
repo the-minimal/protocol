@@ -1,14 +1,14 @@
-import type { State } from "./types/index.js";
+import type { EncodeState } from "./types/encode.js";
 
 const POOL_SIZE = 128_000;
-const CHUNK_SIZE = 1_000;
+const CHUNK_SIZE = 8_000;
 const LAYOUT_SIZE = POOL_SIZE / CHUNK_SIZE;
 
 let POOL_BUFFER = new Uint8Array(POOL_SIZE);
 let POOL_LAYOUT = new Uint8Array(LAYOUT_SIZE);
 let FREE_CHUNKS = LAYOUT_SIZE;
 
-export const alloc = (chunks: number): State => {
+export const alloc = (chunks: number): EncodeState => {
 	if (FREE_CHUNKS < chunks) {
 		refill();
 	}
@@ -54,7 +54,7 @@ const refill = () => {
 	FREE_CHUNKS = LAYOUT_SIZE;
 };
 
-export const free = (state: State) => {
+export const free = (state: EncodeState) => {
 	if (POOL_BUFFER === state.id) {
 		POOL_LAYOUT.fill(0, state.layout_start, state.layout_end);
 		FREE_CHUNKS += state.chunks;
