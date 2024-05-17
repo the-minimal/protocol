@@ -7,6 +7,40 @@
   "description": "Minimal JSON-like binary schema-full protocol for JS/TS with BYO runtime data validations",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "default": {
+        "import": {
+          "types": "./dist/index.d.ts",
+          "default": "./dist/index.js"
+        }
+      },
+      "types": {
+        "import": {
+          "types": "./dist/types.d.ts",
+          "default": "./dist/types.js"
+        }
+      },
+      "encode": {
+        "import": {
+          "types": "./dist/encode.d.ts",
+          "default": "./dist/encode.js"
+        }
+      },
+      "decode": {
+        "import": {
+          "types": "./dist/decode.d.ts",
+          "default": "./dist/decode.js"
+        }
+      },
+      "estimate": {
+        "import": {
+          "types": "./dist/estimate.d.ts",
+          "default": "./dist/estimate.js"
+        }
+      }
+    }
+  },
   "sideEffects": false,
   "publishConfig": {
     "access": "public"
