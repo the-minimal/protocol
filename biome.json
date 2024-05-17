@@ -1,11 +1,11 @@
 {
 	"$schema": "https://biomejs.dev/schemas/1.6.4/schema.json",
 	"files": {
-		"include": ["src", "index.ts"],
+		"include": ["src", "tests", "scripts"],
 		"ignore": ["node_modules"]
 	},
 	"linter": {
-		"include": ["src", "index.ts"],
+		"include": ["src", "tests", "scripts"],
 		"ignore": ["node_modules"],
 		"rules": {
 			"suspicious": {
@@ -27,11 +27,11 @@
 		"indentWidth": 2,
 		"lineEnding": "lf",
 		"lineWidth": 80,
-		"include": ["src", "index.ts"],
+		"include": ["src", "tests", "scripts"],
 		"ignore": ["node_modules"]
 	},
 	"organizeImports": {
-		"include": ["src", "index.ts"],
+		"include": ["src", "tests", "scripts"],
 		"ignore": ["node_modules"]
 	}
 }

@@ -7,7 +7,7 @@ const DecodeError = error("DecodeError");
 
 const DECODE_TYPES = [
 	(state) => {
-		return state.v.getUint8(state.o) === 1;
+		return state.v.getUint8(state.o++) === 1;
 	},
 	(state, _, index) => {
 		const result = state.v[`getUint${(index - 10) * 8}`](state.o);

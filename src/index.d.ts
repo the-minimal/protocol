@@ -39,7 +39,7 @@ declare namespace Type {
 
 declare namespace Protocol {
 	type Assertable = {
-		assert?: (v: unknown) => asserts v is unknown;
+		assert?: (v: unknown) => undefined | unknown;
 	};
 
 	type Keyable = {

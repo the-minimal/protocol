@@ -5,10 +5,10 @@ Minimal JSON-like binary schema-full protocol for JS/TS with BYO runtime data va
 ## Highlights
 
 - Small (< 1.5 KB)
-- Fast
+- Minimal runtime overhead
 - Runtime data validations
 - 36 types
-  - `Boolean`
+  - `Bool`
   - `UInt8`
   - `UInt16`
   - `UInt32`
@@ -21,29 +21,29 @@ Minimal JSON-like binary schema-full protocol for JS/TS with BYO runtime data va
   - `Ascii16`
   - `Unicode8`
   - `Unicode16`
-  - `Object`
+  - `Struct`
   - `Array8`
   - `Array16`
   - `Enum`
   - `Tuple`
-  - `NullableBoolean`
-  - `NullableUInt8`
-  - `NullableUInt16`
-  - `NullableUInt32`
-  - `NullableInt8`
-  - `NullableInt16`
-  - `NullableInt32`
-  - `NullableFloat32`
-  - `NullableFloat64`
-  - `NullableAscii8`
-  - `NullableAscii16`
-  - `NullableUnicode8`
-  - `NullableUnicode16`
-  - `NullableObject`
-  - `NullableArray8`
-  - `NullableArray16`
-  - `NullableEnum`
-  - `NullableTuple`
+  - `NBool`
+  - `NUInt8`
+  - `NUInt16`
+  - `NUInt32`
+  - `NInt8`
+  - `NInt16`
+  - `NInt32`
+  - `NFloat32`
+  - `NFloat64`
+  - `NAscii8`
+  - `NAscii16`
+  - `NUnicode8`
+  - `NUnicode16`
+  - `NStruct`
+  - `NArray8`
+  - `NArray16`
+  - `NEnum`
+  - `NTuple`
 - Estimate payload size
 - Static type inference
 
@@ -55,13 +55,13 @@ Encodes JS data into `ArrayBuffer` based on `Type`.
 
 ```ts
 const arrayBuffer = encode({
-    type: Type.Object,
+    type: Struct,
     value: [
-        { key: "name", type: Type.Ascii },
-        { key: "age", type: Type.UInt8 } 
+        { key: "name", type: Ascii8 },
+        { key: "age", type: UInt8 }
     ]
 }, {
-    type: "Yamiteru",
+    name: "Yamiteru",
     age: 27
 });
 ```
@@ -72,32 +72,28 @@ Decodes `ArrayBuffer` into JS data based on `Type`.
 
 ```ts
 const data = decode({
-    type: Type.Object,
+    type: Struct,
     value: [
-        { key: "name", type: Type.Ascii },
-        { key: "age", type: Type.UInt8 } 
+        { key: "name", type: Ascii8 },
+        { key: "age", type: UInt8 }
     ]
 }, arrayBuffer);
 ```
 
 ### `estimate`
 
-Estimates payload size of `Type` in bytes and chunks based on provided `Settings`.
+Estimates payload size of `Type` in bytes and chunks.
 
 ```ts
-const { 
-  bytes,  // 66 
-  chunks  // 9
+const {
+  bytes,  // 66
+  chunks  // 1
 } = estimate({
-    type: Type.Object,
+    type: Struct,
     value: [
-        { key: "name", type: Type.Ascii, maxLength: 64 },
-        { key: "age", type: Type.UInt8 } 
+        { key: "name", type: Ascii8, maxLength: 64 },
+        { key: "age", type: UInt8 }
     ]
-}, {
-  MAX_POOL_SIZE: 256,
-  DEFAULT_POOL_SIZE: 16,
-  DEFAULT_CHUNK_SIZE: 8,
 });
 ```
 
@@ -109,15 +105,15 @@ Once you create a `Type` you can easily infer it with `Infer`.
 
 ```ts
 const user = {
-    type: Type.Object,
+    type: Struct,
     value: [
-        { key: "name", type: Type.Ascii },
-        { key: "age", type: Type.UInt8 } 
+        { key: "name", type: Ascii8 },
+        { key: "age", type: UInt8 }
     ]
 } as const;
 
 // {
-//     type: string,
+//     name: string,
 //     age: number
 // }
 type User = Infer<typeof user>;
@@ -125,13 +121,15 @@ type User = Infer<typeof user>;
 
 ## Types
 
-### Boolean
+All nullable types have `N` prefix.
+
+### Bool
 
 ```ts
 {
-    type: 
-        | Type.Boolean 
-        | Type.NullableBoolean;
+    type:
+        | Type.Bool
+        | Type.NBool;
 }
 ```
 
@@ -139,13 +137,13 @@ type User = Infer<typeof user>;
 
 ```ts
 {
-    type: 
-        | Type.UInt8
-		| Type.UInt16
-		| Type.UInt32
-		| Type.NullableUInt8
-		| Type.NullableUInt16
-		| Type.NullableUInt32;
+    type:
+      | Type.UInt8
+      | Type.UInt16
+      | Type.UInt32
+      | Type.NUInt8
+      | Type.NUInt16
+      | Type.NUInt32;
 }
 ```
 
@@ -153,13 +151,13 @@ type User = Infer<typeof user>;
 
 ```ts
 {
-    type: 
-        | Type.Int8
-		| Type.Int16
-		| Type.Int32
-		| Type.NullableInt8
-		| Type.NullableInt16
-		| Type.NullableInt32;
+    type:
+      | Type.Int8
+      | Type.Int16
+      | Type.Int32
+      | Type.NInt8
+      | Type.NInt16
+      | Type.NInt32;
 }
 ```
 
@@ -168,11 +166,11 @@ type User = Infer<typeof user>;
 
 ```ts
 {
-    type: 
+    type:
         | Type.Float32
         | Type.Float64
-        | Type.NullableFloat32
-        | Type.NullableFloat64;
+        | Type.NFloat32
+        | Type.NFloat64;
 }
 ```
 
@@ -180,11 +178,11 @@ type User = Infer<typeof user>;
 
 ```ts
 {
-    type: 
+    type:
         | Type.Ascii8
         | Type.Ascii16
-        | Type.NullableAscii8
-        | Type.NullableAscii16;
+        | Type.NAscii8
+        | Type.NAscii16;
 }
 ```
 
@@ -192,21 +190,21 @@ type User = Infer<typeof user>;
 
 ```ts
 {
-    type: 
+    type:
         | Type.Unicode8
         | Type.Unicode16
-        | Type.NullableUnicode8
-        | Type.NullableUnicode16;
+        | Type.NUnicode8
+        | Type.NUnicode16;
 }
 ```
 
-### Object
+### Struct
 
 ```ts
 {
-    type: 
-        | Type.Object
-        | Type.NullableObject;
+    type:
+        | Type.Struct
+        | Type.NStruct;
     value: (AnyType & Required<Type.Keyable>)[];
 }
 ```
@@ -215,11 +213,11 @@ type User = Infer<typeof user>;
 
 ```ts
 {
-    type: 
+    type:
         | Type.Array8
         | Type.Array16
-        | Type.NullableArray8
-        | Type.NullableArray16;
+        | Type.NArray8
+        | Type.NArray16;
     value: AnyType;
 }
 ```
@@ -228,9 +226,9 @@ type User = Infer<typeof user>;
 
 ```ts
 {
-    type: 
+    type:
         | Type.Tuple
-        | Type.NullableTuple;
+        | Type.NTuple;
     value: AnyType[];
 }
 ```
@@ -239,14 +237,14 @@ type User = Infer<typeof user>;
 
 ```ts
 {
-    type: 
+    type:
         | Type.Enum
-        | Type.NullableEnum;
+        | Type.NEnum;
     value: unknown[];
 }
 ```
 
-## Keyable 
+## Keyable
 
 Used in `Object` for property names.
 
@@ -262,10 +260,10 @@ Any type can be asserted by adding `assert` property to it.
 
 In `encode` it's run before encoding and in `decode` it's run after decoding.
 
-If type is `nullable` and the value is `null` we do not run `assert` in either `encode` or `decode`.
+If type is nullable and the value is `null` we don't run `assert` in either `encode` or `decode`.
 
 ```ts
 {
-   assert?: (v: unknown) => asserts v is unknown;
+   assert?: (v: unknown) => undefined | unknown;
 }
 ```

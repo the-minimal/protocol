@@ -4,14 +4,21 @@ import { decode } from "../src/decode.js";
 import { encode } from "../src/encode.js";
 import { estimate } from "../src/estimate.js";
 import type { Protocol } from "../src/index.js";
-import { Bool, NTuple, Tuple, UInt8 } from "../src/types.js";
-import { UINT8 } from "./shared.js";
+import { Bool, NStruct, Struct, UInt8 } from "../src/types.js";
 
-describe("tuple", () => {
-	test.prop([fc.tuple(fc.integer(UINT8), fc.boolean())])("Tuple", (value) => {
+describe("struct", () => {
+	test.prop([
+		fc.record({
+			a: fc.boolean(),
+			b: fc.integer({ min: 0, max: 255 }),
+		}),
+	])("Struct", (value) => {
 		const type = {
-			type: Tuple,
-			value: [{ type: UInt8 }, { type: Bool }],
+			type: Struct,
+			value: [
+				{ key: "a", type: Bool },
+				{ key: "b", type: UInt8 },
+			],
 		} as const satisfies Protocol.Any;
 
 		const encoded = encode(type, value);
@@ -25,11 +32,20 @@ describe("tuple", () => {
 	});
 
 	test.prop([
-		fc.oneof(fc.tuple(fc.integer(UINT8), fc.boolean()), fc.constant(null)),
-	])("NTuple", (value) => {
+		fc.oneof(
+			fc.record({
+				a: fc.boolean(),
+				b: fc.integer({ min: 0, max: 256 }),
+			}),
+			fc.constant(null),
+		),
+	])("NStruct", (value) => {
 		const type = {
-			type: NTuple,
-			value: [{ type: UInt8 }, { type: Bool }],
+			type: NStruct,
+			value: [
+				{ key: "a", type: Bool },
+				{ key: "b", type: UInt8 },
+			],
 		} as const satisfies Protocol.Any;
 
 		const encoded = encode(type, value);
