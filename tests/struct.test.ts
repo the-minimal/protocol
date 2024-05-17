@@ -35,7 +35,7 @@ describe("struct", () => {
 		fc.oneof(
 			fc.record({
 				a: fc.boolean(),
-				b: fc.integer({ min: 0, max: 256 }),
+				b: fc.integer({ min: 0, max: 255 }),
 			}),
 			fc.constant(null),
 		),
