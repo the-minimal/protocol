@@ -1,10 +1,12 @@
 import {fc, test} from "@fast-check/vitest";
 import {expect} from "vitest";
-import {decode, encode, Type} from "../src/index.js";
+import { Enum } from "../src/types.js";
+import { encode } from "../src/encode.js";
+import { decode } from "../src/decode.js";
 
 test.prop([fc.oneof(fc.constant("ADMIN"), fc.constant("USER"))])("enum", (value) => {
     const type = {
-        type: Type.Enum,
+        type: Enum,
         value: ["ADMIN", "USER"]
     } as const;
 

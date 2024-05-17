@@ -1,14 +1,16 @@
 import {fc, test} from "@fast-check/vitest";
 import {expect} from "vitest";
-import {decode, encode, Type} from "../src/index.js";
 import {UINT8} from "./shared.js";
+import { Ascii8, Tuple, UInt8 } from "../src/types.js";
+import { encode } from "../src/encode.js";
+import { decode } from "../src/decode.js";
 
 test.prop([fc.tuple(fc.integer(UINT8), fc.string())])("tuple", (value) => {
     const type = {
-        type: Type.Tuple,
+        type: Tuple,
         value: [
-            {type: Type.UInt8},
-            {type: Type.Ascii8},
+            {type: UInt8},
+            {type: Ascii8},
         ]
     } as const;
 

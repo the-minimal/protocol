@@ -1,10 +1,12 @@
 import {fc, test} from "@fast-check/vitest";
 import {expect} from "vitest";
-import {decode, encode, Type} from "../src/index.js";
+import { Bool } from "../src/types.js";
+import { encode } from "../src/encode.js";
+import { decode } from "../src/decode.js";
 
-test.prop([fc.boolean()])("boolean", (value) => {
+test.prop([fc.boolean()])("bool", (value) => {
     const type = {
-        type: Type.Boolean,
+        type: Bool,
     } as const;
 
     const encoded = encode(type, value);

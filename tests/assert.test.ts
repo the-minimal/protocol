@@ -1,7 +1,9 @@
 import {fc, test} from "@fast-check/vitest";
 import {describe, expect} from "vitest";
-import {decode, encode, Type} from "../src/index.js";
 import {UINT8} from "./shared.js";
+import { UInt8 } from "../src/types.js";
+import { encode } from "../src/encode.js";
+import { decode } from "../src/decode.js";
 
 describe("assert", () => {
     const assert = (value: unknown) => {
@@ -13,7 +15,7 @@ describe("assert", () => {
     };
 
     test.prop([fc.integer({ min: 1, max: UINT8.max})])("passes", (value) => {
-        const type = { type: Type.UInt8, assert: assert } as const;
+        const type = { type: UInt8, assert: assert } as const;
 
         const encoded = encode(type, value);
         const decoded = decode(type, encoded);
@@ -22,8 +24,8 @@ describe("assert", () => {
     });
 
     test.prop([fc.constant(0)])("throws", (value) => {
-        const throwType = { type: Type.UInt8, assert } as const;
-        const passType = { type: Type.UInt8 } as const;
+        const throwType = { type: UInt8, assert } as const;
+        const passType = { type: UInt8 } as const;
 
         try {
             encode(throwType, value);

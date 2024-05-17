@@ -1,16 +1,18 @@
 import {fc, test} from "@fast-check/vitest";
 import {expect} from "vitest";
-import {decode, encode, Type} from "../src/index.js";
+import { Ascii8, Struct, UInt8 } from "../src/types.js";
+import { encode } from "../src/encode.js";
+import { decode } from "../src/decode.js";
 
 test.prop([fc.record({
    name: fc.string(),
    age: fc.integer({min: 0, max: 150}),
-})])("object", (value) => {
+})])("struct", (value) => {
     const type = {
-        type: Type.Object,
+        type: Struct,
         value: [
-            {key: "name", type: Type.Ascii8 },
-            {key: "age", type: Type.UInt8},
+            {key: "name", type: Ascii8 },
+            {key: "age", type: UInt8},
         ]
     } as const;
 

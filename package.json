@@ -7,18 +7,6 @@
   "description": "Minimal JSON-like binary schema-full protocol for JS/TS with BYO runtime data validations",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "import": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/index.js"
-      },
-      "require": {
-        "types": "./dist/index.d.cts",
-        "default": "./dist/index.cjs"
-      }
-    }
-  },
   "sideEffects": false,
   "publishConfig": {
     "access": "public"
@@ -50,20 +38,28 @@
   "scripts": {
     "prepublishOnly": "bun run check && bun run build && bun run test",
     "release": "release-it",
-    "build": "bun run build:tsup && bun run build:stats",
-    "build:tsup": "tsup",
+    "build": "bun build:clean && bun build:terser && bun build:stats && bun build:index && bun build:dts",
+    "build:clean": "rm -rf dist",
+    "build:terser": "bun run scripts/build.ts",
+    "build:dts": "bun build:dts:index && bun build:dts:encode && bun build:dts:decode && bun build:dts:types && bun build:dts:estimate",
+    "build:dts:index": "cp src/index.d.ts dist/index.d.ts",
+    "build:dts:encode": "cp src/encode.d.ts dist/encode.d.ts",
+    "build:dts:decode": "cp src/decode.d.ts dist/decode.d.ts",
+    "build:dts:types": "cp src/types.d.ts dist/types.d.ts",
+    "build:dts:estimate": "cp src/estimate.d.ts dist/estimate.d.ts",
+    "build:index": "cp src/index.js dist/index.js",
     "build:stats": "bun run scripts/stats.ts",
     "test": "vitest run --typecheck",
     "test:coverage": "vitest run --coverage",
     "check": "bunx @biomejs/biome check --apply ./"
   },
   "devDependencies": {
-    "@biomejs/biome": "1.7.2",
+    "@biomejs/biome": "1.7.3",
     "@fast-check/vitest": "0.1.1",
     "@types/bun": "latest",
     "@vitest/coverage-v8": "1.6.0",
     "release-it": "17.2.1",
-    "tsup": "8.0.2",
+    "terser": "5.31.0",
     "vite-tsconfig-paths": "4.3.2",
     "vitest": "1.6.0"
   },

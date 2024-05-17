@@ -1,10 +1,12 @@
 import {fc, test} from "@fast-check/vitest";
 import {describe, expect} from "vitest";
-import {decode, encode, Type} from "../src/index.js";
+import { Float32, Float64 } from "../src/types.js";
+import { encode } from "../src/encode.js";
+import { decode } from "../src/decode.js";
 
 describe("float", () => {
     test.prop([fc.float()])("float32", (value) => {
-        const type = { type: Type.Float32 } as const;
+        const type = { type: Float32 } as const;
 
         const encoded = encode(type, value);
         const decoded = decode(type, encoded);
@@ -13,7 +15,7 @@ describe("float", () => {
     });
 
     test.prop([fc.integer()])("float64", (value) => {
-        const type = { type: Type.Float64 } as const;
+        const type = { type: Float64 } as const;
 
         const encoded = encode(type, value);
         const decoded = decode(type, encoded);

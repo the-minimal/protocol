@@ -1,11 +1,11 @@
 {
 	"$schema": "https://biomejs.dev/schemas/1.6.4/schema.json",
 	"files": {
-		"include": ["src/**/*.ts", "index.ts"],
+		"include": ["src", "index.ts"],
 		"ignore": ["node_modules"]
 	},
 	"linter": {
-		"include": ["src/**/*.ts", "index.ts"],
+		"include": ["src", "index.ts"],
 		"ignore": ["node_modules"],
 		"rules": {
 			"suspicious": {
@@ -14,16 +14,24 @@
 			},
 			"style": {
 				"noParameterAssign": "off",
-				"useEnumInitializers": "off"
+				"useEnumInitializers": "off",
+				"useSingleVarDeclarator": "off"
 			}
 		}
 	},
 	"formatter": {
-		"include": ["src/**/*.ts", "index.ts"],
+		"enabled": true,
+		"formatWithErrors": false,
+		"attributePosition": "auto",
+		"indentStyle": "tab",
+		"indentWidth": 2,
+		"lineEnding": "lf",
+		"lineWidth": 80,
+		"include": ["src", "index.ts"],
 		"ignore": ["node_modules"]
 	},
 	"organizeImports": {
-		"include": ["src/**/*.ts", "index.ts"],
+		"include": ["src", "index.ts"],
 		"ignore": ["node_modules"]
 	}
 }
