@@ -3,38 +3,24 @@ import { error } from "@the-minimal/error";
 const encoder = new TextEncoder();
 const EncodeError = error("EncodeError");
 
-let POOL_BUFFER = new Uint8Array(128_000);
-let POOL_LAYOUT = new Uint8Array(128);
-let FREE_CHUNKS = 128;
+let MEMORY_POOL = new Uint8Array(128_000);
+let MEMORY_VIEW = new DataView(MEMORY_POOL.buffer);
+let MEMORY_LAYOUT = new Uint8Array(128);
 
-const alloc = (chunks) => {
-	if (FREE_CHUNKS < chunks) {
-		refill();
-	}
-
+const alloc = (c) => {
 	let count = 0;
-
 	for (let i = 0; i < 128; ++i) {
-		if (POOL_LAYOUT[i] === 0) {
-			if (count++ === chunks) {
-				const layout_start = i - chunks;
-				const layout_end = i;
-				const offset = layout_start * 1_000;
-
-				POOL_LAYOUT.fill(1, layout_start, layout_end);
-				FREE_CHUNKS -= chunks;
-
-				const array = POOL_BUFFER.subarray(offset, layout_end * 1_000);
+		if (MEMORY_LAYOUT[i] === 0) {
+			if (count++ === c) {
+				MEMORY_LAYOUT.fill(1, i - c, i);
 
 				return {
-					i: POOL_BUFFER,
-					b: array.buffer,
-					a: array,
-					v: new DataView(array.buffer),
-					o: offset,
-					s: layout_start,
-					e: layout_end,
-					c: chunks,
+					b: MEMORY_POOL,
+					v: MEMORY_VIEW,
+					o: (i - c) * 1000,
+					x: 0,
+					i,
+					c,
 				};
 			}
 		} else {
@@ -42,44 +28,48 @@ const alloc = (chunks) => {
 		}
 	}
 
-	refill();
+	MEMORY_POOL = new Uint8Array(128_000);
+	MEMORY_VIEW = new DataView(MEMORY_POOL.buffer);
+	MEMORY_LAYOUT = new Uint8Array(128);
 
-	return alloc(chunks);
-};
+	MEMORY_LAYOUT.fill(1, 0, c);
 
-const refill = () => {
-	POOL_BUFFER = new Uint8Array(128_000);
-	POOL_LAYOUT = new Uint8Array(128);
-	FREE_CHUNKS = 128;
+	return {
+		b: MEMORY_POOL,
+		v: MEMORY_VIEW,
+		o: 0,
+		x: 0,
+		i: c,
+		c,
+	};
 };
 
 const free = (state) => {
-	if (POOL_BUFFER === state.i) {
-		POOL_LAYOUT.fill(0, state.s, state.e);
-		FREE_CHUNKS += state.c;
+	if (MEMORY_VIEW === state.v) {
+		MEMORY_LAYOUT.fill(0, state.i - state.c, state.i);
 	}
 };
 
 const ENCODE_TYPES = [
-	(state, _1, _2, value) => {
+	(state, _, value) => {
 		state.v.setUint8(state.o++, +value);
 	},
-	(state, _, index, value) => {
-		state.v[`setUint${(index - 10) * 8}`](state.o, value);
+	(state, _, value) => {
+		state.v[`setUint${(state.x - 10) * 8}`](state.o, value);
 
-		state.o += index - 10;
+		state.o += state.x - 10;
 	},
-	(state, _, index, value) => {
-		state.v[`setInt${(index - 20) * 8}`](state.o, value);
-		state.o += index - 20;
+	(state, _, value) => {
+		state.v[`setInt${(state.x - 20) * 8}`](state.o, value);
+		state.o += state.x - 20;
 	},
-	(state, _, index, value) => {
-		state.v[`setFloat${(index - 30) * 8}`](state.o, value);
-		state.o += index - 30;
+	(state, _, value) => {
+		state.v[`setFloat${(state.x - 30) * 8}`](state.o, value);
+		state.o += state.x - 30;
 	},
-	(state, _, index, value) => {
-		const isAscii = index < 45;
-		const size = index - (isAscii ? 40 : 45);
+	(state, _, value) => {
+		const isAscii = state.x < 45;
+		const size = state.x - (isAscii ? 40 : 45);
 
 		if (isAscii) {
 			state.v[`setUint${size * 8}`](state.o, value.length);
@@ -92,43 +82,42 @@ const ENCODE_TYPES = [
 		} else {
 			const written = encoder.encodeInto(
 				value,
-				new Uint8Array(state.b, state.o + size),
+				new Uint8Array(state.b.buffer, state.o + size),
 			).written;
 
 			state.v[`setUint${size * 8}`](state.o, written);
 			state.o += size + written;
 		}
 	},
-	(state, type, _, value) => {
+	(state, type, value) => {
 		for (let i = 0; i < type.value.length; ++i) {
-			runEncode(state, type.value[i], value[type.value[i].key]);
+			run(state, type.value[i], value[type.value[i].key]);
 		}
 	},
-	(state, type, index, value) => {
-		state.v[`setUint${(index - 60) * 8}`](state.o, value.length);
+	(state, type, value) => {
+		state.v[`setUint${(state.x - 60) * 8}`](state.o, value.length);
 
-		state.o += index - 60;
+		state.o += state.x - 60;
 
 		for (let i = 0; i < value.length; ++i) {
-			runEncode(state, type.value, value[i]);
+			run(state, type.value, value[i]);
 		}
 	},
-	(state, type, _, value) => {
+	(state, type, value) => {
 		state.v.setUint8(state.o++, type.value.indexOf(value));
 	},
-	(state, type, _, value) => {
+	(state, type, value) => {
 		for (let i = 0; i < type.value.length; ++i) {
-			runEncode(state, type.value[i], value[i]);
+			run(state, type.value[i], value[i]);
 		}
 	},
 ];
 
-const runEncode = (state, type, value) => {
-	let index = type.type;
+const run = (state, type, value) => {
+	state.x = type.type;
 
-	if (index > 99) {
-		index -= 100;
-
+	if (state.x > 99) {
+		state.x -= 100;
 		state.v.setUint8(state.o++, +(value === null));
 
 		if (value === null) {
@@ -140,16 +129,16 @@ const runEncode = (state, type, value) => {
 
 	type.assert?.(value);
 
-	ENCODE_TYPES[(index / 10) | 0](state, type, index, value);
+	ENCODE_TYPES[(state.x / 10) | 0](state, type, value);
 };
 
 const encode = (type, value, chunks = 1) => {
 	try {
-		const state = alloc(chunks);
+		const state = alloc(Math.ceil(chunks * 1.25));
 
-		runEncode(state, type, value);
+		run(state, type, value);
 
-		const result = state.b.slice(0, state.o);
+		const result = state.b.buffer.slice((state.i - state.c) * 1000, state.o);
 
 		free(state);
 
