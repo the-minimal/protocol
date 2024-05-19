@@ -5,48 +5,43 @@ const EncodeError = error("EncodeError");
 
 let MEMORY_POOL = new Uint8Array(128_000);
 let MEMORY_VIEW = new DataView(MEMORY_POOL.buffer);
-let MEMORY_LAYOUT = new Uint8Array(128);
+let MEMORY_LAYOUT = 0b0000000000000000000000000000000000000000000000000000000000000000;
 
 const alloc = (c) => {
-	let count = 0;
-	for (let i = 0; i < 128; ++i) {
-		if (MEMORY_LAYOUT[i] === 0) {
-			if (count++ === c) {
-				MEMORY_LAYOUT.fill(1, i - c, i);
+	for (let i = 0; i < (64 - c); ++i) {
+    if((MEMORY_LAYOUT & (((1 << c) - 1) << (64 - c - i))) === 0) {
+      MEMORY_LAYOUT |= ((1 << c) - 1) << (64 - c - i);
 
-				return {
-					b: MEMORY_POOL,
-					v: MEMORY_VIEW,
-					o: (i - c) * 1000,
-					x: 0,
-					i,
-					c,
-				};
-			}
-		} else {
-			count = 0;
-		}
+      return {
+        b: MEMORY_POOL,
+        v: MEMORY_VIEW,
+        o: 2 * i * 1000,
+        x: 0,
+        i,
+        c,
+      };
+    }
 	}
 
 	MEMORY_POOL = new Uint8Array(128_000);
 	MEMORY_VIEW = new DataView(MEMORY_POOL.buffer);
-	MEMORY_LAYOUT = new Uint8Array(128);
+  MEMORY_LAYOUT = 0b0000000000000000000000000000000000000000000000000000000000000000;
 
-	MEMORY_LAYOUT.fill(1, 0, c);
+  MEMORY_LAYOUT |= ((1 << c) - 1) << (64 - c);
 
 	return {
 		b: MEMORY_POOL,
 		v: MEMORY_VIEW,
 		o: 0,
 		x: 0,
-		i: c,
+		i: 0,
 		c,
 	};
 };
 
 const free = (state) => {
 	if (MEMORY_VIEW === state.v) {
-		MEMORY_LAYOUT.fill(0, state.i - state.c, state.i);
+    MEMORY_LAYOUT &= ~(((1 << state.c) - 1) << (64 - state.c - state.i));
 	}
 };
 
@@ -134,11 +129,11 @@ const run = (state, type, value) => {
 
 const encode = (type, value, chunks = 1) => {
 	try {
-		const state = alloc(Math.ceil(chunks * 1.25));
+		const state = alloc(((chunks * 5 + 3) >> 2) & ~1);
 
 		run(state, type, value);
 
-		const result = state.b.buffer.slice((state.i - state.c) * 1000, state.o);
+		const result = state.b.buffer.slice(2 * state.i * 1000, state.o);
 
 		free(state);
 
