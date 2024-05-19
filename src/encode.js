@@ -8,26 +8,26 @@ let MEMORY_VIEW = new DataView(MEMORY_POOL.buffer);
 let MEMORY_LAYOUT = 0b0000000000000000000000000000000000000000000000000000000000000000;
 
 const alloc = (c) => {
-	for (let i = 0; i < (64 - c); ++i) {
-    if((MEMORY_LAYOUT & (((1 << c) - 1) << (64 - c - i))) === 0) {
-      MEMORY_LAYOUT |= ((1 << c) - 1) << (64 - c - i);
+	for (let i = 0; i < 64 - c; ++i) {
+		if ((MEMORY_LAYOUT & (((1 << c) - 1) << (64 - c - i))) === 0) {
+			MEMORY_LAYOUT |= ((1 << c) - 1) << (64 - c - i);
 
-      return {
-        b: MEMORY_POOL,
-        v: MEMORY_VIEW,
-        o: 2 * i * 1000,
-        x: 0,
-        i,
-        c,
-      };
-    }
+			return {
+				b: MEMORY_POOL,
+				v: MEMORY_VIEW,
+				o: 2 * i * 1000,
+				x: 0,
+				i,
+				c,
+			};
+		}
 	}
 
 	MEMORY_POOL = new Uint8Array(128_000);
 	MEMORY_VIEW = new DataView(MEMORY_POOL.buffer);
-  MEMORY_LAYOUT = 0b0000000000000000000000000000000000000000000000000000000000000000;
+	MEMORY_LAYOUT = 0b0000000000000000000000000000000000000000000000000000000000000000;
 
-  MEMORY_LAYOUT |= ((1 << c) - 1) << (64 - c);
+	MEMORY_LAYOUT |= ((1 << c) - 1) << (64 - c);
 
 	return {
 		b: MEMORY_POOL,
@@ -41,7 +41,7 @@ const alloc = (c) => {
 
 const free = (state) => {
 	if (MEMORY_VIEW === state.v) {
-    MEMORY_LAYOUT &= ~(((1 << state.c) - 1) << (64 - state.c - state.i));
+		MEMORY_LAYOUT &= ~(((1 << state.c) - 1) << (64 - state.c - state.i));
 	}
 };
 
@@ -111,7 +111,7 @@ const ENCODE_TYPES = [
 const run = (state, type, value) => {
 	state.x = type.type;
 
-	if (state.x > 99) {
+	if ((state.x - 100) >> 31 === 0) {
 		state.x -= 100;
 		state.v.setUint8(state.o++, +(value === null));
 

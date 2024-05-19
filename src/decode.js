@@ -84,7 +84,7 @@ const DECODE_TYPES = [
 const run = (state, type) => {
 	state.x = type.type;
 
-	if (state.x > 99) {
+	if ((state.x - 100) >> 31 === 0) {
 		state.x -= 100;
 
 		if (state.v.getUint8(state.o++) === 1) {
