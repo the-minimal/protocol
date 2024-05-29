@@ -1,21 +1,23 @@
 {
 	"$schema": "https://biomejs.dev/schemas/1.6.4/schema.json",
 	"files": {
-		"include": ["src", "tests", "scripts"],
+		"include": ["src", "scripts"],
 		"ignore": ["node_modules"]
 	},
 	"linter": {
-		"include": ["src", "tests", "scripts"],
+		"include": ["src", "scripts"],
 		"ignore": ["node_modules"],
 		"rules": {
 			"suspicious": {
 				"useValidTypeof": "off",
-				"noExplicitAny": "off"
+				"noExplicitAny": "off",
+				"noAssignInExpressions": "off"
 			},
 			"style": {
 				"noParameterAssign": "off",
 				"useEnumInitializers": "off",
-				"useSingleVarDeclarator": "off"
+				"useSingleVarDeclarator": "off",
+				"noCommaOperator": "off"
 			}
 		}
 	},
@@ -27,11 +29,11 @@
 		"indentWidth": 2,
 		"lineEnding": "lf",
 		"lineWidth": 80,
-		"include": ["src", "tests", "scripts"],
+		"include": ["src", "scripts"],
 		"ignore": ["node_modules"]
 	},
 	"organizeImports": {
-		"include": ["src", "tests", "scripts"],
+		"include": ["src", "scripts"],
 		"ignore": ["node_modules"]
 	}
 }

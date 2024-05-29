@@ -14,9 +14,7 @@ import { file, gzipSync } from "bun";
 			const arrBuffer = await fileHandler.arrayBuffer();
 			const gzip = gzipSync(arrBuffer);
 
-			console.log(
-				`${fileName} - ${arrBuffer.byteLength} B | ${gzip.byteLength} B`,
-			);
+			console.log(`${fileName} - ${gzip.byteLength} B`);
 		}
 	}
 })();

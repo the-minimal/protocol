@@ -8,8 +8,10 @@
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
     "isolatedModules": true,
-    "strict": true
+    "strict": true,
+    "outDir": "out",
+    "sourceMap": true
   },
-  "include": ["src", "tests", "scripts"],
+  "include": ["src", "scripts"],
   "exclude": ["node_modules", "dist", "coverage", "docs"]
 }

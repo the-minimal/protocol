@@ -4,7 +4,7 @@
   "version": "0.5.0",
   "license": "MIT",
   "author": "Miroslav Vršecký <yamiteru@icloud.com>",
-  "description": "Minimal JSON-like binary schema-full protocol for JS/TS with BYO runtime data validations",
+  "description": "Minimal and modular binary schema-full protocol for TypeScript",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -12,30 +12,10 @@
       "import": {
         "types": "./dist/index.d.ts",
         "default": "./dist/index.js"
-      }
-    },
-    "./types": {
-      "import": {
-        "types": "./dist/types.d.ts",
-        "default": "./dist/types.js"
-      }
-    },
-    "./encode": {
-      "import": {
-        "types": "./dist/encode.d.ts",
-        "default": "./dist/encode.js"
-      }
-    },
-    "./decode": {
-      "import": {
-        "types": "./dist/decode.d.ts",
-        "default": "./dist/decode.js"
-      }
-    },
-    "./estimate": {
-      "import": {
-        "types": "./dist/estimate.d.ts",
-        "default": "./dist/estimate.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
       }
     }
   },
@@ -70,35 +50,22 @@
   "scripts": {
     "prepublishOnly": "bun run check && bun run build && bun run test",
     "release": "release-it",
-    "build": "bun build:clean && bun build:terser && bun build:stats && bun build:index && bun build:dts",
-    "build:clean": "rm -rf dist",
-    "build:terser": "bun run scripts/build.ts",
-    "build:dts": "bun build:dts:index && bun build:dts:encode && bun build:dts:decode && bun build:dts:types && bun build:dts:estimate",
-    "build:dts:index": "cp src/index.d.ts dist/index.d.ts",
-    "build:dts:encode": "cp src/encode.d.ts dist/encode.d.ts",
-    "build:dts:decode": "cp src/decode.d.ts dist/decode.d.ts",
-    "build:dts:types": "cp src/types.d.ts dist/types.d.ts",
-    "build:dts:estimate": "cp src/estimate.d.ts dist/estimate.d.ts",
-    "build:index": "cp src/index.js dist/index.js",
-    "build:stats": "bun run scripts/stats.ts",
-    "test": "vitest run --typecheck",
-    "test:coverage": "vitest run --coverage",
-    "check": "bunx @biomejs/biome check --apply ./"
+    "build": "tsup && bun run scripts/stats.ts",
+    "check": "yarn biome check --apply ./",
+    "test": "vitest run"
   },
   "devDependencies": {
     "@biomejs/biome": "1.7.3",
     "@fast-check/vitest": "0.1.1",
-    "@types/bun": "latest",
     "@vitest/coverage-v8": "1.6.0",
+    "bun": "1.1.10",
     "release-it": "17.2.1",
     "terser": "5.31.0",
-    "vite-tsconfig-paths": "4.3.2",
+    "tsup": "8.0.2",
+    "typescript": "5.4.5",
     "vitest": "1.6.0"
   },
   "peerDependencies": {
     "typescript": "5.4.5"
-  },
-  "dependencies": {
-    "@the-minimal/error": "0.1.1"
   }
 }
