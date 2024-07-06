@@ -1,5 +1,3 @@
-Minimal and modular binary schema-full protocol for TypeScript.
-
 # Highlights
 
 - Small (~ 1.1 KB)
@@ -64,6 +62,16 @@ type State = {
 This library doesn't come with its own memory allocator.
 
 It's up to you and your specific use-case what kind of memory allocator you use.
+
+# Modularity
+
+This library is basically just a tiny opinionated wrapper around `State`.
+
+We use either `Uint8Array` or `DataView` to modify or read buffer and then we bump the offset.
+
+All functions are standalone encoders and decoders which take `State` as a parameter.
+
+This makes it very easy to extend the library to your liking and compose our encoders and decoders with your custom ones.
 
 # API
 
