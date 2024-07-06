@@ -1,7 +1,7 @@
 {
   "name": "@the-minimal/protocol",
   "type": "module",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "license": "MIT",
   "author": "Miroslav Vršecký <yamiteru@icloud.com>",
   "description": "Minimal and modular binary schema-full protocol for TypeScript",
