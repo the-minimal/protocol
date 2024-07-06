@@ -1,6 +1,6 @@
 import type { Decoder, Encoder } from "../types.js";
 
-const EncodeFloat = (size: 4 | 8): Encoder<number> => {
+const encodeFloat = (size: 4 | 8): Encoder<number> => {
 	const set = `setFloat${size * 8}` as "setFloat32" | "setFloat64";
 
 	return (state, value) => {
@@ -9,18 +9,18 @@ const EncodeFloat = (size: 4 | 8): Encoder<number> => {
 	};
 };
 
-const DecodeFloat = (size: 4 | 8): Decoder<number> => {
+const decodeFloat = (size: 4 | 8): Decoder<number> => {
 	const get = `getFloat${size * 8}` as "getFloat32" | "getFloat64";
 
 	return (state) => {
-		const _ = state.v[get](state.o);
+		const result = state.v[get](state.o);
 		state.o += size;
-		return _;
+		return result;
 	};
 };
 
-export const EncodeFloat32 = EncodeFloat(4);
-export const EncodeFloat64 = EncodeFloat(8);
+export const encodeFloat32 = encodeFloat(4);
+export const encodeFloat64 = encodeFloat(8);
 
-export const DecodeFloat32 = DecodeFloat(4);
-export const DecodeFloat64 = DecodeFloat(8);
+export const decodeFloat32 = decodeFloat(4);
+export const decodeFloat64 = decodeFloat(8);

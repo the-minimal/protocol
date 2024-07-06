@@ -1,7 +1,7 @@
 import { ASCII_DECODER } from "../constants.js";
 import type { Decoder, Encoder } from "../types.js";
 
-const EncodeAscii = (size: 1 | 2): Encoder<string> => {
+const encodeAscii = (size: 1 | 2): Encoder<string> => {
 	const set = size === 1 ? "setUint8" : "setUint16";
 
 	return (state, value) => {
@@ -15,7 +15,7 @@ const EncodeAscii = (size: 1 | 2): Encoder<string> => {
 	};
 };
 
-const DecodeAscii = (size: 1 | 2): Decoder<string> => {
+const decodeAscii = (size: 1 | 2): Decoder<string> => {
 	const get = size === 1 ? "getUint8" : "getUint16";
 
 	return (state) => {
@@ -23,16 +23,18 @@ const DecodeAscii = (size: 1 | 2): Decoder<string> => {
 
 		state.o += size;
 
-		const _ = ASCII_DECODER.decode(state.a.subarray(state.o, state.o + length));
+		const result = ASCII_DECODER.decode(
+			state.a.subarray(state.o, state.o + length),
+		);
 
 		state.o += length;
 
-		return _;
+		return result;
 	};
 };
 
-export const EncodeAscii8 = EncodeAscii(1);
-export const EncodeAscii16 = EncodeAscii(2);
+export const encodeAscii8 = encodeAscii(1);
+export const encodeAscii16 = encodeAscii(2);
 
-export const DecodeAscii8 = DecodeAscii(1);
-export const DecodeAscii16 = DecodeAscii(2);
+export const decodeAscii8 = decodeAscii(1);
+export const decodeAscii16 = decodeAscii(2);

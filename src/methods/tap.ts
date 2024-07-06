@@ -1,6 +1,6 @@
 import type { Decoder, Encoder, State } from "../types.js";
 
-export const EncodeTap =
+export const encodeTap =
 	<const $Type>(
 		type: Encoder<$Type>,
 		fn: (value: $Type) => any,
@@ -10,7 +10,7 @@ export const EncodeTap =
 		type(state, value);
 	};
 
-export const DecodeTap =
+export const decodeTap =
 	<const $Type>(
 		type: Decoder<$Type>,
 		fn: (value: $Type) => any,

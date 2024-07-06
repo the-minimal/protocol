@@ -7,7 +7,7 @@ import type {
 	InferEncodeObject,
 } from "../types.js";
 
-export const EncodeObject = <const $Type extends EncodeObjectSchema>(
+export const encodeObject = <const $Type extends EncodeObjectSchema>(
 	schema: $Type,
 ): Encoder<InferEncodeObject<$Type>> => {
 	const length = schema.length;
@@ -19,18 +19,18 @@ export const EncodeObject = <const $Type extends EncodeObjectSchema>(
 	};
 };
 
-export const DecodeObject = <const $Type extends DecodeObjectSchema>(
+export const decodeObject = <const $Type extends DecodeObjectSchema>(
 	schema: $Type,
 ): Decoder<InferDecodeObject<$Type>> => {
 	const length = schema.length;
 
 	return (state) => {
-		const _: any = {};
+		const result: any = {};
 
 		for (let i = 0; i < length; ++i) {
-			_[schema[i].key] = schema[i].type(state);
+			result[schema[i].key] = schema[i].type(state);
 		}
 
-		return _;
+		return result;
 	};
 };

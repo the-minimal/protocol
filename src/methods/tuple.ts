@@ -5,7 +5,7 @@ import type {
 	InferEncodeTuple,
 } from "../types.js";
 
-export const EncodeTuple = <const $Type extends Encoder<any>[]>(
+export const encodeTuple = <const $Type extends Encoder<any>[]>(
 	types: $Type,
 ): Encoder<InferEncodeTuple<$Type>> => {
 	const length = types.length;
@@ -17,18 +17,18 @@ export const EncodeTuple = <const $Type extends Encoder<any>[]>(
 	};
 };
 
-export const DecodeTuple = <const $Type extends Decoder<any>[]>(
+export const decodeTuple = <const $Type extends Decoder<any>[]>(
 	types: $Type,
 ): Decoder<InferDecodeTuple<$Type>> => {
 	const length = types.length;
 
 	return (state) => {
-		const _: any = new Array(length);
+		const result: any = new Array(length);
 
 		for (let i = 0; i < length; ++i) {
-			_[i] = types[i](state);
+			result[i] = types[i](state);
 		}
 
-		return _;
+		return result;
 	};
 };

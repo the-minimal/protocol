@@ -1,6 +1,6 @@
 import type { Decoder, Encoder } from "../types.js";
 
-const EncodeArray = <const $Type>(
+const encodeArray = <const $Type>(
 	size: 1 | 2,
 	type: Encoder<$Type>,
 ): Encoder<$Type[]> => {
@@ -17,7 +17,7 @@ const EncodeArray = <const $Type>(
 	};
 };
 
-const DecodeArray = <const $Type>(
+const decodeArray = <const $Type>(
 	size: 1 | 2,
 	type: Decoder<$Type>,
 ): Decoder<$Type[]> => {
@@ -26,20 +26,20 @@ const DecodeArray = <const $Type>(
 	return (state) => {
 		const length = state.v[get](state.o);
 
-		const _: any = new Array(length);
+		const result: any = new Array(length);
 
 		state.o += size;
 
 		for (let i = 0; i < length; ++i) {
-			_[i] = type(state);
+			result[i] = type(state);
 		}
 
-		return _;
+		return result;
 	};
 };
 
-export const EncodeArray8 = (type: any) => EncodeArray(1, type);
-export const EncodeArray16 = (type: any) => EncodeArray(2, type);
+export const encodeArray8 = (type: any) => encodeArray(1, type);
+export const encodeArray16 = (type: any) => encodeArray(2, type);
 
-export const DecodeArray8 = (type: any) => DecodeArray(1, type);
-export const DecodeArray16 = (type: any) => DecodeArray(2, type);
+export const decodeArray8 = (type: any) => decodeArray(1, type);
+export const decodeArray16 = (type: any) => decodeArray(2, type);
