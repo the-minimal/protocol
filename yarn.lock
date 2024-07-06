@@ -1035,9 +1035,8 @@ __metadata:
   dependencies:
     "@biomejs/biome": "npm:1.7.3"
     "@fast-check/vitest": "npm:0.1.1"
-    "@types/bun": "npm:^1"
     "@vitest/coverage-v8": "npm:1.6.0"
-    bun: "npm:^1.1.10"
+    bun: "npm:1.1.10"
     release-it: "npm:17.2.1"
     terser: "npm:5.31.0"
     tsup: "npm:8.0.2"
@@ -1055,15 +1054,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/bun@npm:^1":
-  version: 1.1.3
-  resolution: "@types/bun@npm:1.1.3"
-  dependencies:
-    bun-types: "npm:1.1.9"
-  checksum: 10c0/0edb9d0881469440042025337ca66d4e2a1e7046d5f5d6c35e8a3bd12e2f735cfab7fb308f9f105d55d8e19d09b9793051808bf86a959fc9471a12a98e4cc0e6
-  languageName: node
-  linkType: hard
-
 "@types/estree@npm:1.0.5, @types/estree@npm:^1.0.0":
   version: 1.0.5
   resolution: "@types/estree@npm:1.0.5"
@@ -1075,24 +1065,6 @@ __metadata:
   version: 4.0.4
   resolution: "@types/http-cache-semantics@npm:4.0.4"
   checksum: 10c0/51b72568b4b2863e0fe8d6ce8aad72a784b7510d72dc866215642da51d84945a9459fa89f49ec48f1e9a1752e6a78e85a4cda0ded06b1c73e727610c925f9ce6
-  languageName: node
-  linkType: hard
-
-"@types/node@npm:*, @types/node@npm:~20.12.8":
-  version: 20.12.12
-  resolution: "@types/node@npm:20.12.12"
-  dependencies:
-    undici-types: "npm:~5.26.4"
-  checksum: 10c0/f374b763c744e8f16e4f38cf6e2c0eef31781ec9228c9e43a6f267880fea420fab0a238b59f10a7cb3444e49547c5e3785787e371fc242307310995b21988812
-  languageName: node
-  linkType: hard
-
-"@types/ws@npm:~8.5.10":
-  version: 8.5.10
-  resolution: "@types/ws@npm:8.5.10"
-  dependencies:
-    "@types/node": "npm:*"
-  checksum: 10c0/e9af279b984c4a04ab53295a40aa95c3e9685f04888df5c6920860d1dd073fcc57c7bd33578a04b285b2c655a0b52258d34bee0a20569dca8defb8393e1e5d29
   languageName: node
   linkType: hard
 
@@ -1491,17 +1463,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bun-types@npm:1.1.9":
-  version: 1.1.9
-  resolution: "bun-types@npm:1.1.9"
-  dependencies:
-    "@types/node": "npm:~20.12.8"
-    "@types/ws": "npm:~8.5.10"
-  checksum: 10c0/4950117accf29dd620df16b4b4cfcb88708a27a7d00f234c8457fe6163c06dc4b8005647390abd859bbcd1acee63826c1069944e83f108c713b13a40b9efce21
-  languageName: node
-  linkType: hard
-
-"bun@npm:^1.1.10":
+"bun@npm:1.1.10":
   version: 1.1.10
   resolution: "bun@npm:1.1.10"
   dependencies:
@@ -5816,13 +5778,6 @@ __metadata:
     has-symbols: "npm:^1.0.3"
     which-boxed-primitive: "npm:^1.0.2"
   checksum: 10c0/81ca2e81134167cc8f75fa79fbcc8a94379d6c61de67090986a2273850989dd3bae8440c163121b77434b68263e34787a675cbdcb34bb2f764c6b9c843a11b66
-  languageName: node
-  linkType: hard
-
-"undici-types@npm:~5.26.4":
-  version: 5.26.5
-  resolution: "undici-types@npm:5.26.5"
-  checksum: 10c0/bb673d7876c2d411b6eb6c560e0c571eef4a01c1c19925175d16e3a30c4c428181fb8d7ae802a261f283e4166a0ac435e2f505743aa9e45d893f9a3df017b501
   languageName: node
   linkType: hard
 
